@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbedc3ddf5cc8794b80a2bee685437c7, type: 3}
+  m_Name: SinglePad_P2
+  m_EditorClassIdentifier: 
+  padPrefab: {fileID: 4236107508044674374, guid: 6ac653aa07396a348b0be0dc1c29b3a9, type: 3}
+  noteType: 0
+  sprite: {fileID: 0}
+  lifetime: 3
+  excellentThreshold: 0.2
+  goodThreshold: 0.5
+  badThreshold: 1
+  color: {r: 1, g: 1, b: 1, a: 1}
