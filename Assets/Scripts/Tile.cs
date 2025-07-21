@@ -76,6 +76,10 @@ public class Tile : MonoBehaviour
     // 일정 시간 후 공격 타일 자동 제거
     private IEnumerator AttackTimeout(TileOwner attacker)
     {
+        // 피버타임이면 코루틴 실행 중단
+        if (GameManager.Instance.IsFeverTime)
+            yield break;
+
         yield return new WaitForSeconds(5f);
         if (isAttackTile)
         {

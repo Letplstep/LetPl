@@ -100,6 +100,15 @@ public class GameManager : MonoBehaviour
 
     private void StartFeverTime()
     {
+        // 기존 코루틴 제거
+        if (player1AttackCoroutine != null)
+            StopCoroutine(player1AttackCoroutine);
+        if (player2AttackCoroutine != null)
+            StopCoroutine(player2AttackCoroutine);
+
+        player1AttackTile?.ClearAttackTile();
+        player2AttackTile?.ClearAttackTile();
+
         // 모든 타일 초기화
         Tile[] allTiles = FindObjectsOfType<Tile>();
         foreach (Tile tile in allTiles)
