@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &645335426845738444
+--- !u!1 &3498121127995130118
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,52 +8,53 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5860074363316362866}
-  - component: {fileID: 8289078585316696390}
-  - component: {fileID: 1861937671604082932}
-  - component: {fileID: 3681412934788863482}
-  - component: {fileID: 510467813328950635}
+  - component: {fileID: 139226754633889820}
+  - component: {fileID: 819128203152668894}
+  - component: {fileID: 3638504688774701303}
+  - component: {fileID: 6494221471627502167}
+  - component: {fileID: 229649741763914867}
+  - component: {fileID: 7675222630455384460}
   m_Layer: 5
-  m_Name: TouchPoint
-  m_TagString: TouchPoint
+  m_Name: 1_P_SingPad_P1
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &5860074363316362866
+--- !u!224 &139226754633889820
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 645335426845738444}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_GameObject: {fileID: 3498121127995130118}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.033222586, y: 0.033222586, z: 0.033222586}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -5.813965, y: -10.365387}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &8289078585316696390
+--- !u!222 &819128203152668894
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 645335426845738444}
+  m_GameObject: {fileID: 3498121127995130118}
   m_CullTransparentMesh: 1
---- !u!114 &1861937671604082932
+--- !u!114 &3638504688774701303
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 645335426845738444}
+  m_GameObject: {fileID: 3498121127995130118}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
@@ -67,20 +68,20 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
+  m_Texture: {fileID: 2800000, guid: 8699d89985978094aa4278ef3c898bc1, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
     y: 0
     width: 1
     height: 1
---- !u!135 &3681412934788863482
+--- !u!135 &6494221471627502167
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 645335426845738444}
+  m_GameObject: {fileID: 3498121127995130118}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -95,13 +96,13 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 50
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &510467813328950635
+--- !u!54 &229649741763914867
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 645335426845738444}
+  m_GameObject: {fileID: 3498121127995130118}
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
@@ -122,3 +123,23 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &7675222630455384460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3498121127995130118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 793a5c1e80e367049acd9036b7121130, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  noteType: 0
+  singleScore: 1
+  syncScore: 4
+  lifetime: 5
+  sprite: {fileID: 0}
+  color: {r: 1, g: 1, b: 1, a: 1}
+  judgeResult: 0
+  hitEffectPrefab: {fileID: 0}
