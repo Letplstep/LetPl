@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 793a5c1e80e367049acd9036b7121130, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noteType: 0
+  noteType: 1
   singleScore: 1
   syncScore: 4
   lifetime: 2
@@ -108,6 +108,7 @@ MonoBehaviour:
   color: {r: 1, g: 1, b: 1, a: 1}
   judgeResult: 0
   hitEffectPrefab: {fileID: 6826083058843604490, guid: 768331aebc5d495428279a10a1da189c, type: 3}
+  judgeEffect: {fileID: 0}
 --- !u!50 &4896276891627998386
 Rigidbody2D:
   serializedVersion: 4

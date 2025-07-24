@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.SceneManagement;
 
 public class RhythmGameManager : MonoBehaviour
 {
@@ -50,7 +51,7 @@ public class RhythmGameManager : MonoBehaviour
         isGameStarted = false;
         isGameCleared = false;
 
-        scoreText.text = $"Score: {score}";
+        scoreText.text = $"{score}점";
         StartCoroutine(GameStartCountdown());
     }
 
@@ -88,7 +89,7 @@ public class RhythmGameManager : MonoBehaviour
         if (!isGameStarted || isGameCleared) return;
 
         score += amount;
-        scoreText.text = $"Score: {score}";
+        scoreText.text = $"{score}점";
     }
 
     // 게임 종료시 메소드. 현재 타임라인 끝나면 자동 종료. 게임 취소의 경우엔 어떻게?
@@ -98,5 +99,11 @@ public class RhythmGameManager : MonoBehaviour
 
         isGameCleared = true;
         gameStatusText.text = "Game Clear!";
+    }
+
+    // 게임 재시작
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 } // end class

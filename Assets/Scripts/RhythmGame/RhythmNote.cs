@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum NoteJudgeResult
 {
@@ -33,6 +34,7 @@ public class RhythmNote : MonoBehaviour
 
     [Header("판정 성공 이펙트")]
     public GameObject hitEffectPrefab;
+    public GameObject judgeEffect;
 
     [Header("판정 비쥬얼바")]
     private Transform visualBarTransform;
@@ -52,7 +54,7 @@ public class RhythmNote : MonoBehaviour
         }
 
         // 하위의 VisualBar 초기화
-        Transform visualBar = transform.GetChild(0);
+        Transform visualBar = judgeEffect.transform;
         if (visualBar != null)
         {
             visualBarTransform = visualBar;
@@ -65,7 +67,6 @@ public class RhythmNote : MonoBehaviour
     {
         // 타임라인 시작 이후인지 체크
         if (Time.timeSinceLevelLoad < 0.1f) return;
-
 
         // 생성 시각 기록
         spawnTime = Time.time;
@@ -82,43 +83,24 @@ public class RhythmNote : MonoBehaviour
 
     }
 
+    private int touchPointCount = 0;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (judged) return;
-
-        // 250721 TouchPoint
-        if (other.tag == "TouchPoint")
+        if (other.CompareTag("TouchPoint"))
         {
-            if (noteType == NoteType.Single)
+            touchPointCount++;
+            Debug.Log($"[Enter] TouchPoint Count: {touchPointCount}");
+
+            if (!judged && noteType == NoteType.Sync && touchPointCount >= 2)
             {
-                // Single: 누가 들어와도 OK
                 TryJudge();
             }
-            else if (noteType == NoteType.Sync)
+            else if (!judged && noteType == NoteType.Single)
             {
-                // Sync: 현재 이 오브젝트와 충돌 중인 모든 콜라이더를 체크
-                Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, GetComponent<Collider2D>().bounds.size, 0f);
-
-                bool player1Found = false;
-                bool player2Found = false;
-
-                foreach (var hit in hits)
-                {
-                    if (hit.CompareTag("Player1")) player1Found = true;
-                    if (hit.CompareTag("Player2")) player2Found = true;
-                }
-
-                if (player1Found && player2Found)
-                {
-                    TryJudge();
-                }
+                TryJudge();
             }
         }
-    }
-
-    // 트리거 충돌로 범위 안에 들어왔는지 체크
-    void OnTriggerEnter2D(Collider2D other)
-    {
 
         //if (judged) return;
 
@@ -132,25 +114,30 @@ public class RhythmNote : MonoBehaviour
         //    }
         //    else if (noteType == NoteType.Sync)
         //    {
-        //        // Sync: 현재 이 오브젝트와 충돌 중인 모든 콜라이더를 체크
-        //        Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, GetComponent<Collider2D>().bounds.size, 0f);
+        //        Debug.Log("싱크패드 콜라이더 들어옴 확인");
 
-        //        bool player1Found = false;
-        //        bool player2Found = false;
+        //        // 현재 충돌 중인 모든 콜라이더 확인 (3D)
+        //        Collider[] hits = Physics.OverlapBox(
+        //            transform.position,
+        //            GetComponent<Collider>().bounds.extents,
+        //            Quaternion.identity
+        //        );
 
-        //        foreach (var hit in hits)
-        //        {
-        //            if (hit.CompareTag("Player1")) player1Found = true;
-        //            if (hit.CompareTag("Player2")) player2Found = true;
-        //        }
-
-        //        if (player1Found && player2Found)
-        //        {
+        //        if (hits.Length >= 2) {
+        //            Debug.Log("싱크패드 콜라이더 2개 확인");
         //            TryJudge();
         //        }
         //    }
         //}
+    }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("TouchPoint"))
+        {
+            touchPointCount--;
+            Debug.Log($"[Exit] TouchPoint Count: {touchPointCount}");
+        }
     }
 
 
@@ -183,17 +170,25 @@ public class RhythmNote : MonoBehaviour
         RhythmGameManager.Instance.AddScore(scoreToAdd);
 
         // 발판 밟기 성공 이펙트
+        //if (hitEffectPrefab != null)
+        //{
+        //    GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        //    effect.transform.SetParent(transform); // 현재 오브젝트의 자식으로 설정
+        //    Destroy(effect, 1f);
+        //}
         if (hitEffectPrefab != null)
         {
-            GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
-            effect.transform.SetParent(transform); // 현재 오브젝트의 자식으로 설정
-            Destroy(effect, 1f);
+            // 이미지 비활성화?
+            gameObject.GetComponent<RawImage>().enabled = false;
+            judgeEffect.SetActive(false);
+
+            hitEffectPrefab.SetActive(true);
         }
 
         // 제거 사운드
         AudioManager.Instance.PlayHitSFX();
 
-        Destroy(gameObject);
+        Destroy(gameObject, 0.5f);
     }
 
     // 노트가 시간 내에 밟히지 않았을 때 호출
