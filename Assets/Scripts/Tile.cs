@@ -5,7 +5,7 @@ using TMPro;
 
 public enum TileOwner { None, Player1, Player2 }
 
-[RequireComponent(typeof(BoxCollider2D), typeof(SpriteRenderer))]
+[RequireComponent(typeof(BoxCollider), typeof(SpriteRenderer))]
 public class Tile : MonoBehaviour
 {
     // 타일 소유 정보
@@ -25,24 +25,30 @@ public class Tile : MonoBehaviour
     private SpriteRenderer rend;                           // 타일 색상 표시용 SpriteRenderer
     private Coroutine attackTimeoutCoroutine;
 
+    public Sprite defaultSprite;
+    public Sprite player1Sprite;
+    public Sprite player2Sprite;
+    public Sprite attackSprite;
+    public Sprite defenseSprite;
+
     private void Awake()
     {
         rend = GetComponent<SpriteRenderer>();
-        UpdateColor(); // 초기 색상 설정
+        UpdateSprite(); 
     }
 
     // 소유자를 변경하고 색상 업데이트
     public void SetOwner(TileOwner newOwner)
     {
         owner = newOwner;
-        UpdateColor();
+        UpdateSprite();
     }
 
     // 이 타일을 공격 타일로 설정하고 자동 해제 타이머 시작
     public void SetAsAttackTile(TileOwner attacker)
     {
         isAttackTile = true;
-        UpdateColor();
+        UpdateSprite();
         attackTimeoutCoroutine = StartCoroutine(AttackTimeout(attacker));
     }
 
@@ -55,14 +61,14 @@ public class Tile : MonoBehaviour
             StopCoroutine(attackTimeoutCoroutine);
             attackTimeoutCoroutine = null;
         }
-        UpdateColor();
+        UpdateSprite();
     }
 
     // 방어 타일로 설정
     public void SetAsDefenseTile(TileOwner defender)
     {
         isDefenseTile = true;
-        UpdateColor();
+        UpdateSprite();
     }
 
     // 방어 타일 해제 및 UI 제거
@@ -70,16 +76,12 @@ public class Tile : MonoBehaviour
     {
         isDefenseTile = false;
         HideDefenseTimerUI();
-        UpdateColor();
+        UpdateSprite();
     }
 
     // 일정 시간 후 공격 타일 자동 제거
     private IEnumerator AttackTimeout(TileOwner attacker)
     {
-        // 피버타임이면 코루틴 실행 중단
-        if (GameManager.Instance.IsFeverTime)
-            yield break;
-
         yield return new WaitForSeconds(5f);
         if (isAttackTile)
         {
@@ -120,25 +122,36 @@ public class Tile : MonoBehaviour
         }
     }
 
-    // 타일 색상 설정
-    public void UpdateColor()
+    
+    public void UpdateSprite() // 타일 스프라이트 변경
     {
-        if (isAttackTile) rend.color = Color.yellow;          // 공격 타일
-        else if (isDefenseTile) rend.color = Color.gray;      // 방어 타일
+        if (isAttackTile)
+        {
+            rend.sprite = attackSprite;
+        }
+        else if (isDefenseTile)
+        {
+            rend.sprite = defenseSprite;
+        }
         else
         {
-            // 일반 타일 색상
             switch (owner)
             {
-                case TileOwner.Player1: rend.color = Color.blue; break;
-                case TileOwner.Player2: rend.color = Color.red; break;
-                default: rend.color = Color.white; break;      // 미점령
+                case TileOwner.Player1:
+                    rend.sprite = player1Sprite;
+                    break;
+                case TileOwner.Player2:
+                    rend.sprite = player2Sprite;
+                    break;
+                default:
+                    rend.sprite = defaultSprite;
+                    break;
             }
         }
     }
 
     // 플레이어가 타일에 닿았을 때 처리
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter(Collider other)
     {
         PlayerController player = other.GetComponent<PlayerController>();
         if (player == null) return;

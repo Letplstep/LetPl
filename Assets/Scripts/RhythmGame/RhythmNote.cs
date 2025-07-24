@@ -82,36 +82,75 @@ public class RhythmNote : MonoBehaviour
 
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (judged) return;
+
+        // 250721 TouchPoint
+        if (other.tag == "TouchPoint")
+        {
+            if (noteType == NoteType.Single)
+            {
+                // Single: 누가 들어와도 OK
+                TryJudge();
+            }
+            else if (noteType == NoteType.Sync)
+            {
+                // Sync: 현재 이 오브젝트와 충돌 중인 모든 콜라이더를 체크
+                Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, GetComponent<Collider2D>().bounds.size, 0f);
+
+                bool player1Found = false;
+                bool player2Found = false;
+
+                foreach (var hit in hits)
+                {
+                    if (hit.CompareTag("Player1")) player1Found = true;
+                    if (hit.CompareTag("Player2")) player2Found = true;
+                }
+
+                if (player1Found && player2Found)
+                {
+                    TryJudge();
+                }
+            }
+        }
+    }
 
     // 트리거 충돌로 범위 안에 들어왔는지 체크
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (judged) return;
 
-        if (noteType == NoteType.Single)
-        {
-            // Single: 누가 들어와도 OK
-            TryJudge();
-        }
-        else if (noteType == NoteType.Sync)
-        {
-            // Sync: 현재 이 오브젝트와 충돌 중인 모든 콜라이더를 체크
-            Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, GetComponent<Collider2D>().bounds.size, 0f);
+        //if (judged) return;
 
-            bool player1Found = false;
-            bool player2Found = false;
+        //// 250721 TouchPoint
+        //if (other.tag == "TouchPoint")
+        //{
+        //    if (noteType == NoteType.Single)
+        //    {
+        //        // Single: 누가 들어와도 OK
+        //        TryJudge();
+        //    }
+        //    else if (noteType == NoteType.Sync)
+        //    {
+        //        // Sync: 현재 이 오브젝트와 충돌 중인 모든 콜라이더를 체크
+        //        Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, GetComponent<Collider2D>().bounds.size, 0f);
 
-            foreach (var hit in hits)
-            {
-                if (hit.CompareTag("Player1")) player1Found = true;
-                if (hit.CompareTag("Player2")) player2Found = true;
-            }
+        //        bool player1Found = false;
+        //        bool player2Found = false;
 
-            if (player1Found && player2Found)
-            {
-                TryJudge();
-            }
-        }
+        //        foreach (var hit in hits)
+        //        {
+        //            if (hit.CompareTag("Player1")) player1Found = true;
+        //            if (hit.CompareTag("Player2")) player2Found = true;
+        //        }
+
+        //        if (player1Found && player2Found)
+        //        {
+        //            TryJudge();
+        //        }
+        //    }
+        //}
+
     }
 
 
@@ -147,9 +186,9 @@ public class RhythmNote : MonoBehaviour
         if (hitEffectPrefab != null)
         {
             GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
-            Destroy(effect, 0.5f); // 애니메이션 길이만큼
+            effect.transform.SetParent(transform); // 현재 오브젝트의 자식으로 설정
+            Destroy(effect, 1f);
         }
-
 
         // 제거 사운드
         AudioManager.Instance.PlayHitSFX();
