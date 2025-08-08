@@ -2,15 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public GameObject feverEffectPrefab; // 피버 이펙트 프리팹 연결
+    public GameObject feverBanner; // 인스펙터에서 연결할 배너 오브젝트
+    private List<GameObject> feverEffects = new List<GameObject>(); // 생성된 이펙트들 저장
+
 
     // UI
-    public Text player1ScoreText;
-    public Text player2ScoreText;
-    public Text timerText;
+    public TextMeshProUGUI player1ScoreText;
+    public TextMeshProUGUI player2ScoreText;
+    public TextMeshProUGUI timerText;
+
+    public Slider timerSlider;  // UI 연결용 슬라이더
 
     public GameObject resultPanel;
     public Text resultText;
@@ -49,6 +56,13 @@ public class GameManager : MonoBehaviour
     {
         // 초기화
         currentTime = gameTime;
+
+        if (timerSlider != null)
+        {
+            timerSlider.maxValue = gameTime;
+            timerSlider.value = gameTime;
+        }
+
         resultPanel.SetActive(false);
         player1Score = 0;
         player2Score = 0;
@@ -69,10 +83,13 @@ public class GameManager : MonoBehaviour
 
         UpdateTimerText();
 
+        if (timerSlider != null)
+            timerSlider.value = currentTime;
+
         // 피버타임 시작 조건 남은 시간이 5초 이하일 때
         if (!isFeverTimeStarted && currentTime <= 5f)
         {
-            isFeverTimeStarted = true;
+            //isFeverTimeStarted = true;
             StartFeverTime();
         }
 
@@ -91,37 +108,125 @@ public class GameManager : MonoBehaviour
 
     private void UpdateScoreUI()
     {
-        // 점수 텍스트 갱신
+        // 점수
         if (player1ScoreText != null)
-            player1ScoreText.text = $"P1 점수: {player1Score}";
+            player1ScoreText.text = player1Score.ToString();
+
         if (player2ScoreText != null)
-            player2ScoreText.text = $"P2 점수: {player2Score}";
+            player2ScoreText.text = player2Score.ToString();
     }
 
-    private void StartFeverTime()
+    IEnumerator FeverTimeSequence()
     {
-        // 기존 코루틴 제거
-        if (player1AttackCoroutine != null)
-            StopCoroutine(player1AttackCoroutine);
-        if (player2AttackCoroutine != null)
-            StopCoroutine(player2AttackCoroutine);
+        // 피버타임 진입 표시 (더 이상 일반 공격 타일 설정 X)
+        isFeverTimeStarted = true;
 
-        player1AttackTile?.ClearAttackTile();
-        player2AttackTile?.ClearAttackTile();
-
-        // 모든 타일 초기화
+        // 타일 초기화 잠깐 보이지 않게: 공격 타일 전부 제거
         Tile[] allTiles = FindObjectsOfType<Tile>();
         foreach (Tile tile in allTiles)
         {
             tile.ClearAttackTile();
             tile.ClearDefenseTile();
-            tile.SetOwner(tile.territoryOwner); // 영역 색상 초기화
+        }
+        // 색상 복원 (자기 소속 색)
+        foreach (Tile tile in allTiles)
+        {
+            tile.SetOwner(tile.territoryOwner); // 색상 기반 소유자 초기화
+            tile.UpdateSprite();
         }
 
-        // 각 플레이어의 영역 중 8개씩을 피버 공격 타일로 지정
+        // 게임 정지
+        Time.timeScale = 0f;
+
+        // 피버 배너 보여주기
+        if (feverBanner != null)
+            feverBanner.SetActive(true);
+
+        // 실시간으로 3초 기다리기
+        yield return new WaitForSecondsRealtime(3f);
+
+        // 배너 숨기기
+        if (feverBanner != null)
+            feverBanner.SetActive(false);
+
+        // 게임 재개
+        Time.timeScale = 1f;
+
+        // 타일을 소속 색상으로 초기화 (색상 번쩍임 막음)
+        foreach (Tile tile in allTiles)
+        {
+            tile.SetOwner(tile.territoryOwner); // 소속으로 초기화
+        }
+
+        // 각 플레이어의 피버 공격 타일 지정
         feverAttackTilesP1 = CreateFeverAttackTiles(TileOwner.Player1, 8);
         feverAttackTilesP2 = CreateFeverAttackTiles(TileOwner.Player2, 8);
+
+        SpawnFeverEffectsBetweenTiles();
     }
+
+    private void SpawnFeverEffectsBetweenTiles()
+    {
+        // 기존 이펙트 삭제
+        foreach (var effect in feverEffects)
+        {
+            if (effect != null) Destroy(effect);
+        }
+        feverEffects.Clear();
+
+        // Player1 진영의 하드코딩 위치들
+        Vector3[] player1Positions = new Vector3[]
+        {
+        new Vector3(-54, -40, -44),
+        new Vector3(-54, -40, -22),
+        new Vector3(-54, -40, 0),
+        new Vector3(-54, -40, 22),
+        new Vector3(-54, -40, 44),
+        new Vector3(-32, -40, -44),
+        new Vector3(-32, -40, -22),
+        new Vector3(-32, -40, 0),
+        new Vector3(-32, -40, 22),
+        new Vector3(-32, -40, 44),
+        };
+
+        // Player2 진영의 하드코딩 위치들
+        Vector3[] player2Positions = new Vector3[]
+        {
+        new Vector3(32, -40, -44),
+        new Vector3(32, -40, -22),
+        new Vector3(32, -40, 0),
+        new Vector3(32, -40, 22),
+        new Vector3(32, -40, 44),
+        new Vector3(54, -40, -44),
+        new Vector3(54, -40, -22),
+        new Vector3(54, -40, 0),
+        new Vector3(54, -40, 22),
+        new Vector3(54, -40, 44),
+        };
+
+        Quaternion fxRotation = Quaternion.Euler(90f, 0, 0); // 회전값 설정
+
+
+        // 공통 생성 함수
+        void SpawnEffects(Vector3[] positions)
+        {
+            foreach (Vector3 pos in positions)
+            {
+                GameObject fx = Instantiate(feverEffectPrefab, pos, fxRotation);
+                feverEffects.Add(fx);
+            }
+        }
+
+        SpawnEffects(player1Positions);
+        SpawnEffects(player2Positions);
+    }
+
+
+    private void StartFeverTime()
+    {
+        StartCoroutine(FeverTimeSequence());
+    }
+
 
     private List<Tile> CreateFeverAttackTiles(TileOwner owner, int count)
     {

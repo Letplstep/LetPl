@@ -18,24 +18,24 @@ public class TouchPointGenerate : MonoBehaviour
     {
         if (SensorActiveState.instance.SensorState[((int)sensorEnum)])//호쿠요 메니저가 연결되었으면
         {
-            if(TouchPoint != null)
+            if (TouchPoint != null)
             {
-                if(sensorManager.getSensorVector().Count > TouchPoints.Count)//오브젝트 풀링
+                if (sensorManager.getSensorVector().Count > TouchPoints.Count)//오브젝트 풀링
                 {
                     for (int i = TouchPoints.Count; i < sensorManager.getSensorVector().Count; i++)
                     {
                         TouchPoints.Add(Instantiate(TouchPoint, TouchPointBasket));
                     }
                 }
-                else if(sensorManager.getSensorVector().Count < TouchPoints.Count)//오브젝트 풀링
+                else if (sensorManager.getSensorVector().Count < TouchPoints.Count)//오브젝트 풀링
                 {
-                    for(int i = sensorManager.getSensorVector().Count; i < TouchPoints.Count; i++)
+                    for (int i = sensorManager.getSensorVector().Count; i < TouchPoints.Count; i++)
                     {
                         TouchPoints[i].SetActive(false);
                     }
                 }
 
-                for(int i = 0; i < sensorManager.getSensorVector().Count; i++)//오브젝트 풀링, 센서 위치에 이동
+                for (int i = 0; i < sensorManager.getSensorVector().Count; i++)//오브젝트 풀링, 센서 위치에 이동
                 {
                     TouchPoints[i].SetActive(true);
                     TouchPoints[i].transform.localPosition = sensorManager.getSensorVector()[i];
@@ -44,7 +44,7 @@ public class TouchPointGenerate : MonoBehaviour
         }
         else//호쿠요 메니저가 연결이 안되어있으면 모든 오브젝트 False
         {
-            for(int i = 0; i < TouchPoints.Count; i++)
+            for (int i = 0; i < TouchPoints.Count; i++)
             {
                 TouchPoints[i].SetActive(false);
             }

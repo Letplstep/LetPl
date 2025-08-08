@@ -6,6 +6,9 @@ TagManager:
   tags:
   - AttackTile
   - Tile
+  - Player2
+  - Player1
+  - TouchPoint
   layers:
   - Default
   - TransparentFX

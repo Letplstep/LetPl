@@ -5,7 +5,7 @@ using TMPro;
 
 public enum TileOwner { None, Player1, Player2 }
 
-[RequireComponent(typeof(BoxCollider2D), typeof(SpriteRenderer))]
+[RequireComponent(typeof(BoxCollider), typeof(SpriteRenderer))]
 public class Tile : MonoBehaviour
 {
     // 타일 소유 정보
@@ -25,24 +25,30 @@ public class Tile : MonoBehaviour
     private SpriteRenderer rend;                           // 타일 색상 표시용 SpriteRenderer
     private Coroutine attackTimeoutCoroutine;
 
+    public Sprite defaultSprite;
+    public Sprite player1Sprite;
+    public Sprite player2Sprite;
+    public Sprite attackSprite;
+    public Sprite defenseSprite;
+
     private void Awake()
     {
         rend = GetComponent<SpriteRenderer>();
-        UpdateColor(); // 초기 색상 설정
+        UpdateSprite(); 
     }
 
     // 소유자를 변경하고 색상 업데이트
     public void SetOwner(TileOwner newOwner)
     {
         owner = newOwner;
-        UpdateColor();
+        UpdateSprite();
     }
 
     // 이 타일을 공격 타일로 설정하고 자동 해제 타이머 시작
     public void SetAsAttackTile(TileOwner attacker)
     {
         isAttackTile = true;
-        UpdateColor();
+        UpdateSprite();
         attackTimeoutCoroutine = StartCoroutine(AttackTimeout(attacker));
     }
 
@@ -55,14 +61,14 @@ public class Tile : MonoBehaviour
             StopCoroutine(attackTimeoutCoroutine);
             attackTimeoutCoroutine = null;
         }
-        UpdateColor();
+        UpdateSprite();
     }
 
     // 방어 타일로 설정
     public void SetAsDefenseTile(TileOwner defender)
     {
         isDefenseTile = true;
-        UpdateColor();
+        UpdateSprite();
     }
 
     // 방어 타일 해제 및 UI 제거
@@ -70,16 +76,12 @@ public class Tile : MonoBehaviour
     {
         isDefenseTile = false;
         HideDefenseTimerUI();
-        UpdateColor();
+        UpdateSprite();
     }
 
     // 일정 시간 후 공격 타일 자동 제거
     private IEnumerator AttackTimeout(TileOwner attacker)
     {
-        // 피버타임이면 코루틴 실행 중단
-        if (GameManager.Instance.IsFeverTime)
-            yield break;
-
         yield return new WaitForSeconds(5f);
         if (isAttackTile)
         {
@@ -90,10 +92,10 @@ public class Tile : MonoBehaviour
             }
         }
     }
-
     // 방어 타일 타이머 UI 표시
     public void ShowDefenseTimerUI()
     {
+        Debug.Log($"{gameObject.name} - ShowDefenseTimerUI 호출됨");
         if (defenseTimerUIPrefab != null && activeDefenseUI == null)
         {
             activeDefenseUI = Instantiate(defenseTimerUIPrefab, transform);
@@ -101,7 +103,6 @@ public class Tile : MonoBehaviour
             defenseTimerText = activeDefenseUI.GetComponentInChildren<TextMeshProUGUI>();
         }
     }
-
     // 방어 타일 UI 갱신
     public void UpdateDefenseTimerUI(int seconds)
     {
@@ -120,46 +121,61 @@ public class Tile : MonoBehaviour
         }
     }
 
-    // 타일 색상 설정
-    public void UpdateColor()
+    public void UpdateSprite() // 타일 스프라이트 변경
     {
-        if (isAttackTile) rend.color = Color.yellow;          // 공격 타일
-        else if (isDefenseTile) rend.color = Color.gray;      // 방어 타일
+        if (isAttackTile)
+        {
+            rend.sprite = attackSprite;
+        }
+        else if (isDefenseTile)
+        {
+            rend.sprite = defenseSprite;
+        }
         else
         {
-            // 일반 타일 색상
             switch (owner)
             {
-                case TileOwner.Player1: rend.color = Color.blue; break;
-                case TileOwner.Player2: rend.color = Color.red; break;
-                default: rend.color = Color.white; break;      // 미점령
+                case TileOwner.Player1:
+                    rend.sprite = player1Sprite;
+                    break;
+                case TileOwner.Player2:
+                    rend.sprite = player2Sprite;
+                    break;
+                default:
+                    rend.sprite = defaultSprite;
+                    break;
             }
         }
     }
-
-    // 플레이어가 타일에 닿았을 때 처리
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter(Collider other)
     {
-        PlayerController player = other.GetComponent<PlayerController>();
-        if (player == null) return;
+        // 기존 방식 제거: XR에서는 PlayerController 없음
+        // PlayerController player = other.GetComponent<PlayerController>();
+        // if (player == null) return;
 
-        // 방어 타일, 플레이어가 타일 소유자와 같을 경우 방어 성공
-        if (isDefenseTile && player.myOwner == owner)
+        // XR 환경에서는 위치로 소유자 추정 (플레이어 위치 기준)
+        TileOwner assumedOwner = other.transform.position.x < 0 ? TileOwner.Player1 : TileOwner.Player2;
+        TileOwner enemy = assumedOwner == TileOwner.Player1 ? TileOwner.Player2 : TileOwner.Player1;
+     
+
+        Debug.Log($"타일 {gameObject.name}에 {other.name} 닿음 (추정 소유자: {assumedOwner})");
+
+        // 방어 타일 처리
+        if (isDefenseTile && owner == assumedOwner)
         {
             ClearDefenseTile();
-            SetOwner(owner); // 방어 성공 시 색깔 유지
+            SetOwner(owner); // 방어 성공 시 색 유지
             return;
         }
 
-        // 타일이 다른 소유자, 방어 타일이 아닐 경우 점령 가능
-        if (owner != player.myOwner && !isDefenseTile)
+        // 점령 처리
+        if (owner != assumedOwner && !isDefenseTile)
         {
-            // 원래 영역 소속이면 점령 가능
             if (owner == territoryOwner)
-                SetOwner(player.myOwner);
+                SetOwner(assumedOwner);
         }
 
-        // 공격 타일에 들어간 경우 처리
+        // 공격 타일 처리
         if (isAttackTile)
         {
             bool isFever = GameManager.Instance.IsFeverTime;
@@ -168,14 +184,11 @@ public class Tile : MonoBehaviour
 
             if (isFever)
             {
-                // 피버타임 중 공격 타일 밟으면 점수 + 새로운 피버 공격 타일 생성
-                GameManager.Instance.AddScore(player.myOwner);
-                GameManager.Instance.RespawnFeverAttackTile(player.myOwner, this);
+                GameManager.Instance.AddScore(assumedOwner);
+                GameManager.Instance.RespawnFeverAttackTile(assumedOwner, this);
             }
             else
             {
-                // 일반 모드 - 적 진영의 랜덤 타일을 방어 타일로 만들고 타이머 시작
-                TileOwner enemy = player.myOwner == TileOwner.Player1 ? TileOwner.Player2 : TileOwner.Player1;
                 Tile[] allTiles = FindObjectsOfType<Tile>();
                 List<Tile> enemyTiles = new List<Tile>();
 
@@ -189,12 +202,10 @@ public class Tile : MonoBehaviour
                 {
                     Tile targetTile = enemyTiles[Random.Range(0, enemyTiles.Count)];
                     targetTile.SetAsDefenseTile(enemy);
-                    GameManager.Instance.StartDefenseTimer(targetTile, player.myOwner);
+                    GameManager.Instance.StartDefenseTimer(targetTile, assumedOwner);
                 }
             }
-
-            // 일반 모드에서는 새로운 공격 타일 생성
-            GameManager.Instance.SetNewAttackTileForPlayer(player.myOwner, this);
+            GameManager.Instance.SetNewAttackTileForPlayer(assumedOwner, this);
         }
     }
 }
