@@ -28,7 +28,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 145, y: 145, z: 145}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 9121746446471662097}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -73,7 +73,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 577c01ae685eef947810f2b8efcf1b99, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2b73769e8f5da2847aa81cc8138550d1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.46666667}
   m_FlipX: 0
   m_FlipY: 0
@@ -125,7 +125,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 288, y: 145}
+  m_SizeDelta: {x: 501, y: 251}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3970478365205433226
 CanvasRenderer:
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 577c01ae685eef947810f2b8efcf1b99, type: 3}
+  m_Texture: {fileID: 2800000, guid: 2b73769e8f5da2847aa81cc8138550d1, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -262,15 +262,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 493995867159131481, guid: 768331aebc5d495428279a10a1da189c, type: 3}
       propertyPath: m_LocalScale.x
-      value: 100
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 493995867159131481, guid: 768331aebc5d495428279a10a1da189c, type: 3}
       propertyPath: m_LocalScale.y
-      value: 100
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 493995867159131481, guid: 768331aebc5d495428279a10a1da189c, type: 3}
       propertyPath: m_LocalScale.z
-      value: 100
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 493995867159131481, guid: 768331aebc5d495428279a10a1da189c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -311,6 +311,10 @@ PrefabInstance:
     - target: {fileID: 493995867159131481, guid: 768331aebc5d495428279a10a1da189c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 493995867159131481, guid: 768331aebc5d495428279a10a1da189c, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6826083058843604490, guid: 768331aebc5d495428279a10a1da189c, type: 3}
       propertyPath: m_Name
