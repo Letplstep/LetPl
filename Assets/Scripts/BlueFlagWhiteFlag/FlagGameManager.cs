@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
-using static UnityEditor.ShaderData;
 
 public class FlagGameManager : MonoBehaviour
 {
@@ -132,6 +131,15 @@ public class FlagGameManager : MonoBehaviour
             //FlagPatternData pattern = patternList[Random.Range(0, patternList.Count)];
             //currentPattern = pattern;
 
+            // 패턴 리스트가 비었을 수도 있으니 가드
+            if (patternList == null || patternList.Count == 0)
+            {
+                Debug.LogError("[GameLoop] patternList가 비었습니다.");
+                yield return null;
+                continue; // 혹은 EndGame(); break;
+            }
+
+            // 1) 패턴 선택
             int pickIndex;
             do
             {
@@ -145,8 +153,10 @@ public class FlagGameManager : MonoBehaviour
 
             // 새 패턴 시작: 상태 초기화
             patternCleared = false;
-            for (int i = 0; i < 4; i++) currentPersons[i] = 0;
-
+            if (currentPersons == null || currentPersons.Length != 4)
+                currentPersons = new int[4];
+            for (int i = 0; i < currentPersons.Length; i++) currentPersons[i] = 0;
+            
             // UI 갱신
             if (patternImage != null)
             {
@@ -180,15 +190,15 @@ public class FlagGameManager : MonoBehaviour
             // --- 카운트다운 (슬라이더는 항상 100 유지) ---
             if (sliderTimer) sliderTimer.value = sliderTimer.maxValue;
 
-            // 카운트 다운 이미지 보여주기
-            patternImage.sprite = sprite3;
-            yield return new WaitForSeconds(1f);
+            //// 카운트 다운 이미지 보여주기
+            //patternImage.sprite = sprite3;
+            //yield return new WaitForSeconds(1f);
 
-            patternImage.sprite = sprite2;
-            yield return new WaitForSeconds(1f);
+            //patternImage.sprite = sprite2;
+            //yield return new WaitForSeconds(1f);
 
-            patternImage.sprite = sprite1;
-            yield return new WaitForSeconds(1f);
+            //patternImage.sprite = sprite1;
+            //yield return new WaitForSeconds(1f);
 
 
         }
@@ -214,8 +224,8 @@ public class FlagGameManager : MonoBehaviour
     // FlagPad가 호출: 해당 발판의 현재 인원 갱신
     public void OnPadPeopleChanged(FlagType type, int persons)
     {
-        //if (patternCleared) return;
-        //if (currentPattern == null) return;
+        if (patternCleared) return;
+        if (currentPattern == null) return;
 
         Debug.Log($"[PadEvent] {type} 현재 {persons}명 | 패턴: {currentPattern.name}");
 

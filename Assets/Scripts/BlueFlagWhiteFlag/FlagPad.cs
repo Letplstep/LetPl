@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static TreeEditor.TreeEditorHelper;
 
 // 발판 종류
 public enum FlagType
