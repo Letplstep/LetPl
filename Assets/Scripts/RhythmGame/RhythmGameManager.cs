@@ -27,6 +27,9 @@ public class RhythmGameManager : MonoBehaviour
     public PlayableDirector timeline;
     private bool ended = false;
 
+    [Header("튜토리얼")]
+    public TutorialSlideshow tutorial;
+
     void Awake()
     {
         // 싱글톤 인스턴스 설정
@@ -40,8 +43,12 @@ public class RhythmGameManager : MonoBehaviour
         }
     }
 
-    void Start()
+    IEnumerator Start()
     {
+        // 튜토리얼 먼저
+        if (tutorial != null)
+            yield return StartCoroutine(tutorial.PlayCoroutine());
+
         InitGame();
     }
 
@@ -61,6 +68,7 @@ public class RhythmGameManager : MonoBehaviour
         if (!ended && timeline != null && timeline.state != PlayState.Playing)
         {
             ended = true;
+            isGameCleared = true;
             GameClear();
         }
     }
@@ -72,7 +80,7 @@ public class RhythmGameManager : MonoBehaviour
 
         while (timer > 0)
         {
-            gameStatusText.text = $"{Mathf.Ceil(timer)}!";
+            gameStatusText.text = $"{Mathf.Ceil(timer)}";
             timer -= Time.deltaTime;
             yield return null;
         }
@@ -95,10 +103,8 @@ public class RhythmGameManager : MonoBehaviour
     // 게임 종료시 메소드. 현재 타임라인 끝나면 자동 종료. 게임 취소의 경우엔 어떻게?
     public void GameClear()
     {
-        if (isGameCleared) return;
-
-        isGameCleared = true;
         gameStatusText.text = "Game Clear!";
+        gameStatusText.gameObject.SetActive(true);
     }
 
     // 게임 재시작

@@ -47,6 +47,9 @@ public class FlagGameManager : MonoBehaviour
     [Header("청기백기 패턴 사운드 틀 오디오소스")]
     private AudioSource audioSource;
 
+    [Header("튜토리얼")]
+    public FlagTutorialShlideshow tutorial;
+
     private float gameEndTime;   // 게임 종료 시각
 
     void Awake()
@@ -75,11 +78,16 @@ public class FlagGameManager : MonoBehaviour
         if (!textGameStatus) return;
         textGameStatus.text = msg;
         textGameStatus.enabled = on;
+        textGameStatus.gameObject.SetActive(true);
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        // 오디오 소스 연결
         audioSource = GetComponent<AudioSource>();
+
+        // 튜토리얼 먼저
+        yield return StartCoroutine(tutorial.PlayCoroutine());
 
         // 시작 시엔 패턴 이미지는 숨기고 상태 텍스트만 보이도록
         SetPatternVisible(false);
@@ -227,7 +235,7 @@ public class FlagGameManager : MonoBehaviour
         isGameCleared = true;
 
         SetPatternVisible(false);
-        ShowStatus("게임 종료!", true);
+        ShowStatus("Game Clear!", true);
 
         Debug.Log("[Game] 종료");
     }

@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Flipping.unity
     guid: 5683f377cbf021f45bea530e24cd06a1
   - enabled: 0
-    path: Assets/Scenes/RhythmGame_Prototype.unity
+    path: Assets/Scenes/RhythmGame.unity
     guid: 4a6670eca76c41140a81e600b19ccd71
   - enabled: 1
     path: Assets/Scenes/BlueFlagWhiteFlag.unity

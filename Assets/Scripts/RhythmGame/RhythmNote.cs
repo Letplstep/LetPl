@@ -79,7 +79,7 @@ public class RhythmNote : MonoBehaviour
         isActive = true;
 
         // 생성 사운드
-        AudioManager.Instance.PlayCreateSFX();
+        // AudioManager.Instance.PlayCreateSFX();
     }
 
     private int touchPointCount = 0;
