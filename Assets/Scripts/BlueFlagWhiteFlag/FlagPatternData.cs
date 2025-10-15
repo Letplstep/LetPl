@@ -17,6 +17,8 @@ public class FlagPatternData : ScriptableObject
     public FlagPatternType flagPatterType = FlagPatternType.Single;
     [Header("스프라이트 이미지")]
     public Sprite sprite;             // 발판 스프라이트
+    [Header("오디오")]
+    public AudioClip patternSFX;
 
     [System.Serializable]
     public class Requirement

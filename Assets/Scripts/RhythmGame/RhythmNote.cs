@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.UI;
 
 public enum NoteJudgeResult
@@ -34,6 +35,7 @@ public class RhythmNote : MonoBehaviour
 
     [Header("판정 성공 이펙트")]
     public GameObject hitEffectPrefab;
+    public GameObject failEffectPrefab;
     public GameObject judgeEffect;
 
     [Header("판정 비쥬얼바")]
@@ -65,6 +67,7 @@ public class RhythmNote : MonoBehaviour
 
     private void OnEnable()
     {
+ 
         // 타임라인 시작 이후인지 체크
         if (Time.timeSinceLevelLoad < 0.1f) return;
 
@@ -77,10 +80,6 @@ public class RhythmNote : MonoBehaviour
 
         // 생성 사운드
         AudioManager.Instance.PlayCreateSFX();
-
-        // 일정 시간이 지나면 자동으로 제거
-        Invoke(nameof(SelfDestruct), lifetime);
-
     }
 
     private int touchPointCount = 0;
@@ -101,34 +100,6 @@ public class RhythmNote : MonoBehaviour
                 TryJudge();
             }
         }
-
-        //if (judged) return;
-
-        //// 250721 TouchPoint
-        //if (other.tag == "TouchPoint")
-        //{
-        //    if (noteType == NoteType.Single)
-        //    {
-        //        // Single: 누가 들어와도 OK
-        //        TryJudge();
-        //    }
-        //    else if (noteType == NoteType.Sync)
-        //    {
-        //        Debug.Log("싱크패드 콜라이더 들어옴 확인");
-
-        //        // 현재 충돌 중인 모든 콜라이더 확인 (3D)
-        //        Collider[] hits = Physics.OverlapBox(
-        //            transform.position,
-        //            GetComponent<Collider>().bounds.extents,
-        //            Quaternion.identity
-        //        );
-
-        //        if (hits.Length >= 2) {
-        //            Debug.Log("싱크패드 콜라이더 2개 확인");
-        //            TryJudge();
-        //        }
-        //    }
-        //}
     }
 
     private void OnTriggerExit(Collider other)
@@ -169,13 +140,6 @@ public class RhythmNote : MonoBehaviour
         int scoreToAdd = (noteType == NoteType.Single) ? singleScore : syncScore;
         RhythmGameManager.Instance.AddScore(scoreToAdd);
 
-        // 발판 밟기 성공 이펙트
-        //if (hitEffectPrefab != null)
-        //{
-        //    GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
-        //    effect.transform.SetParent(transform); // 현재 오브젝트의 자식으로 설정
-        //    Destroy(effect, 1f);
-        //}
         if (hitEffectPrefab != null)
         {
             // 이미지 비활성화?
@@ -192,7 +156,7 @@ public class RhythmNote : MonoBehaviour
     }
 
     // 노트가 시간 내에 밟히지 않았을 때 호출
-    void SelfDestruct()
+    public void SelfDestruct()
     {
         // 이미 판정되었으면 아무 것도 하지 않음
         if (judged) return;
@@ -201,7 +165,16 @@ public class RhythmNote : MonoBehaviour
         judgeResult = NoteJudgeResult.Miss;
         Debug.Log($"[Judge] {name} → Miss (시간 초과)");
 
+        // 251015 오브젝트 제거 이전에 돌 애니메이션 효과 보여주기
+        if (failEffectPrefab != null)
+        {
+            gameObject.GetComponent<RawImage>().enabled = false;
+            judgeEffect.SetActive(false);
+
+            failEffectPrefab.SetActive(true);
+        }
+
         // 오브젝트 제거
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 } // end class

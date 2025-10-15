@@ -143,7 +143,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &199238
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6066,7 +6066,7 @@ RectTransform:
   m_GameObject: {fileID: 950063656}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 1.02, y: 1.02, z: 1.02}
+  m_LocalScale: {x: 1.72, y: 1.72, z: 1.72}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1438743407829023699}
@@ -9819,7 +9819,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5551082323463937698, guid: fffb74ce22cad9848a7893a563f20743, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1508182082}
   m_SourcePrefab: {fileID: 100100000, guid: fffb74ce22cad9848a7893a563f20743, type: 3}
 --- !u!224 &1508182075 stripped
 RectTransform:
@@ -9831,6 +9834,47 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5551082323463937698, guid: fffb74ce22cad9848a7893a563f20743, type: 3}
   m_PrefabInstance: {fileID: 1508182074}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1508182077 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9103687430154677290, guid: fffb74ce22cad9848a7893a563f20743, type: 3}
+  m_PrefabInstance: {fileID: 1508182074}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508182076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 793a5c1e80e367049acd9036b7121130, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1508182082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508182076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 916c3e2d56c25f24390e8907c6ca9f93, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1508182077}
+          m_TargetAssemblyTypeName: RhythmNote, Assembly-CSharp
+          m_MethodName: SelfDestruct
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1001 &1539231127
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10048,6 +10092,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 355497899}
     m_Modifications:
+    - target: {fileID: 206018616167764517, guid: e27f2d98f823fa0419ec69a401a153c6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5298780132204173011, guid: e27f2d98f823fa0419ec69a401a153c6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -10156,10 +10204,17 @@ PrefabInstance:
       propertyPath: judgeEffect
       value: 
       objectReference: {fileID: 729529457}
+    - target: {fileID: 9103687430154677290, guid: e27f2d98f823fa0419ec69a401a153c6, type: 3}
+      propertyPath: timelineDirector
+      value: 
+      objectReference: {fileID: 1774408899}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5551082323463937698, guid: e27f2d98f823fa0419ec69a401a153c6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1554104770}
   m_SourcePrefab: {fileID: 100100000, guid: e27f2d98f823fa0419ec69a401a153c6, type: 3}
 --- !u!224 &1554104763 stripped
 RectTransform:
@@ -10171,6 +10226,47 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5551082323463937698, guid: e27f2d98f823fa0419ec69a401a153c6, type: 3}
   m_PrefabInstance: {fileID: 1554104762}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1554104765 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9103687430154677290, guid: e27f2d98f823fa0419ec69a401a153c6, type: 3}
+  m_PrefabInstance: {fileID: 1554104762}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554104764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 793a5c1e80e367049acd9036b7121130, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1554104770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554104764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 916c3e2d56c25f24390e8907c6ca9f93, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1554104765}
+          m_TargetAssemblyTypeName: RhythmNote, Assembly-CSharp
+          m_MethodName: SelfDestruct
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1001 &1588841264
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11953,7 +12049,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -14581,6 +14677,47 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9121746446471662097, guid: 62295bc5ad44aa946bc035d670f086ba, type: 3}
   m_PrefabInstance: {fileID: 9176799944850870299}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7042278747673039137 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3665392885450666566, guid: 62295bc5ad44aa946bc035d670f086ba, type: 3}
+  m_PrefabInstance: {fileID: 9176799944850870299}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5551082324101420344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 793a5c1e80e367049acd9036b7121130, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7042278747673039142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5551082324101420344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 916c3e2d56c25f24390e8907c6ca9f93, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 7042278747673039137}
+          m_TargetAssemblyTypeName: RhythmNote, Assembly-CSharp
+          m_MethodName: SelfDestruct
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!114 &8267305377833494014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14768,7 +14905,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2697216562551591353, guid: 62295bc5ad44aa946bc035d670f086ba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7042278747673039142}
   m_SourcePrefab: {fileID: 100100000, guid: 62295bc5ad44aa946bc035d670f086ba, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

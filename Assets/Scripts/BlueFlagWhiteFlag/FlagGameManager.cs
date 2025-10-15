@@ -44,6 +44,9 @@ public class FlagGameManager : MonoBehaviour
     [Header("패드 가지고 있기")]
     [SerializeField] private List<FlagPad> pads = new List<FlagPad>();
 
+    [Header("청기백기 패턴 사운드 틀 오디오소스")]
+    private AudioSource audioSource;
+
     private float gameEndTime;   // 게임 종료 시각
 
     void Awake()
@@ -76,14 +79,18 @@ public class FlagGameManager : MonoBehaviour
 
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         // 시작 시엔 패턴 이미지는 숨기고 상태 텍스트만 보이도록
         SetPatternVisible(false);
+
         if (sliderTimer)
         {
             sliderTimer.minValue = 0f;
             sliderTimer.maxValue = 100f;
             sliderTimer.value = 100f; // 초기값
         }
+
         StartCoroutine(StartSequence());
     }
 
@@ -157,11 +164,16 @@ public class FlagGameManager : MonoBehaviour
                 currentPersons = new int[4];
             for (int i = 0; i < currentPersons.Length; i++) currentPersons[i] = 0;
             
-            // UI 갱신
+            // UI 갱신, 패턴 오디오 재생
             if (patternImage != null)
             {
                 patternImage.sprite = pattern.sprite;
                 patternImage.enabled = (pattern.sprite != null);
+            }
+
+            if (audioSource != null)
+            {
+                audioSource.PlayOneShot(pattern.patternSFX);
             }
 
             // 새 패턴 시작할때마다 현재 패드위에 올라간 사람 강제 반영
@@ -247,7 +259,7 @@ public class FlagGameManager : MonoBehaviour
         // 여기까지 오면 모든 조건 만족
         Debug.Log("[Pattern OK] 성공!");
 
-        // TODO: 성공 처리(점수/이펙트/다음 패턴 등)
+        // 성공 처리(점수/이펙트/다음 패턴 등)
         patternCleared = true;
         correctCount += 1;
         Debug.Log($"[Pattern OK] 성공! 누적 점수: {correctCount}");
