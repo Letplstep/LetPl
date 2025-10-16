@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using TMPro;
 using UnityEngine;
@@ -49,8 +50,6 @@ public class FlagGameManager : MonoBehaviour
 
     [Header("튜토리얼")]
     public FlagTutorialShlideshow tutorial;
-
-    private float gameEndTime;   // 게임 종료 시각
 
     void Awake()
     {
@@ -110,7 +109,6 @@ public class FlagGameManager : MonoBehaviour
         isGameStarted = true;
         isGameCleared = false;
 
-        gameEndTime = Time.time + totalPlayTime;
         StartCoroutine(GameLoop());
     }
 
@@ -163,15 +161,28 @@ public class FlagGameManager : MonoBehaviour
 
             FlagPatternData pattern = patternList[pickIndex];
             lastPatternIndex = pickIndex;
-            currentPattern = pattern;
+            
 
-
-            // 새 패턴 시작: 상태 초기화
+            // 먼저 플래그 초기화
+            successHandled = false;
             patternCleared = false;
             if (currentPersons == null || currentPersons.Length != 4)
                 currentPersons = new int[4];
             for (int i = 0; i < currentPersons.Length; i++) currentPersons[i] = 0;
-            
+
+            // 현재 발판 상태를 직접 읽어서 초기화
+            for (int i = 0; i < pads.Count; i++)
+            {
+                if (pads[i] != null)
+                {
+                    currentPersons[(int)pads[i].flagType] = pads[i].Persons;
+                }
+            }
+
+
+            // 그 다음 패턴 설정 
+            currentPattern = pattern;
+
             // UI 갱신, 패턴 오디오 재생
             if (patternImage != null)
             {
@@ -184,9 +195,14 @@ public class FlagGameManager : MonoBehaviour
                 audioSource.PlayOneShot(pattern.patternSFX);
             }
 
+            // 패턴 설정 직후 즉시 체크 (이미 조건 만족 시 바로 성공 처리)
+            CheckPatternSuccess();
+
+            // 초기 패턴 시작 시 패드 상태가 반영되지 않아서 currentPersons가 엉뚱한 값으로 남
             // 새 패턴 시작할때마다 현재 패드위에 올라간 사람 강제 반영
-            for (int i = 0; i < pads.Count; i++)
-                pads[i]?.ForceNotify();
+            // 1016 테스트 => 없애니까 버그는 안나는데 패턴이 여러번 씹히는 경우가 있음. 
+            //for (int i = 0; i < pads.Count; i++)
+            //    pads[i]?.ForceNotify();
 
             //// 2) 3초간 패턴 이미지 보여주기
             //yield return new WaitForSeconds(patternShowTime);
@@ -223,9 +239,32 @@ public class FlagGameManager : MonoBehaviour
 
         }
 
-        Debug.Log("[Game] 종료");
+      //  Debug.Log("[Game] 종료");
 
         EndGame();
+    }
+
+    // 패턴 성공 체크 로직 분리
+    private void CheckPatternSuccess()
+    {
+        if (currentPattern == null) return;
+        if (patternCleared) return;
+        if (successHandled) return;
+        if (currentPattern.requirements == null) return;
+
+        // 모든 요구사항 체크
+        foreach (var req in currentPattern.requirements)
+        {
+            int cur = currentPersons[(int)req.flag];
+            if (cur < req.persons) return; // 미달이면 리턴
+        }
+
+        // 여기까지 오면 성공
+        successHandled = true;
+        patternCleared = true;
+        correctCount += 1;
+        Debug.Log($"[Pattern OK] 성공! 누적 점수: {correctCount}");
+        AudioManager.Instance.PlayHitSFX();
     }
 
     // --- 게임 종료 처리: 패턴 숨기고 텍스트로 "게임 종료!" ---
@@ -237,42 +276,56 @@ public class FlagGameManager : MonoBehaviour
         SetPatternVisible(false);
         ShowStatus("Game Clear!", true);
 
-        Debug.Log("[Game] 종료");
+      //  Debug.Log("[Game] 종료");
     }
 
+    private bool successHandled = false; // 이번 패턴에서 성공 처리 이미 했는지
 
     // FlagPad가 호출: 해당 발판의 현재 인원 갱신
     public void OnPadPeopleChanged(FlagType type, int persons)
     {
-        if (patternCleared) return;
+        if (!isGameRunning) return;
         if (currentPattern == null) return;
+        if (patternCleared) return;
 
-        Debug.Log($"[PadEvent] {type} 현재 {persons}명 | 패턴: {currentPattern.name}");
-
-        // 1) 현재 인원 업데이트
+        // 현재 인원만 업데이트
         currentPersons[(int)type] = Mathf.Max(0, persons);
 
-        // 요구된 발판들만 확인(불필요 발판은 신경 안 씀)
-        foreach (var req in currentPattern.requirements)
-        {
-            int cur = currentPersons[(int)req.flag];
-            Debug.Log($"현재 발판 : {req.flag}의 인원 {cur}");
-            if (cur < req.persons) return; // 아직 미달 → 대기
-        }
-
-        // 이미 성공 처리된 패턴이면 무시
-        if (patternCleared) return;
+        // 패턴 체크 (성공 처리는 CheckPatternSuccess 내부에서)
+        CheckPatternSuccess();
 
 
-        // 여기까지 오면 모든 조건 만족
-        Debug.Log("[Pattern OK] 성공!");
 
-        // 성공 처리(점수/이펙트/다음 패턴 등)
-        patternCleared = true;
-        correctCount += 1;
-        Debug.Log($"[Pattern OK] 성공! 누적 점수: {correctCount}");
+        //   if (currentPattern == null) return;
+        //   if (patternCleared) return;
 
-        AudioManager.Instance.PlayHitSFX();
+        //  // Debug.Log($"[PadEvent] {type} 현재 {persons}명 | 패턴: {currentPattern.name}");
+
+        //   // 1) 현재 인원 업데이트
+        //   currentPersons[(int)type] = Mathf.Max(0, persons);
+
+        //   // 요구된 발판들만 확인(불필요 발판은 신경 안 씀)
+        //   foreach (var req in currentPattern.requirements)
+        //   {
+        //       int cur = currentPersons[(int)req.flag];
+        //     //  Debug.Log($"현재 발판 : {req.flag}의 인원 {cur}");
+        //       if (cur < req.persons) return; // 아직 미달 → 대기
+        //   }
+
+        //   // 이미 성공 처리된 패턴이면 무시
+        //   if (successHandled) return;
+        //   successHandled = true;        // 내가 선점!
+        //   if (patternCleared) return;
+
+        //   // 여기까지 오면 모든 조건 만족
+        ////   Debug.Log("[Pattern OK] 성공!");
+
+        //   // 성공 처리(점수/이펙트/다음 패턴 등)
+        //   patternCleared = true;
+        //   correctCount += 1;
+        //   Debug.Log($"[Pattern OK] 성공! 누적 점수: {correctCount}");
+
+        //   AudioManager.Instance.PlayHitSFX();
 
     }
 } // end class

@@ -56,6 +56,7 @@ public class FlagPad : MonoBehaviour
 
     public void ForceNotify()
     {
+        Debug.Log("ForceNOtify() ");
         FlagGameManager.Instance?.OnPadPeopleChanged(flagType, Persons);
     }
 } // end class

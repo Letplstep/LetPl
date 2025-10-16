@@ -15,7 +15,7 @@ MonoBehaviour:
   padPrefab: {fileID: 0}
   flagPatterType: 0
   sprite: {fileID: 21300000, guid: 73f867b6f8aff0b4b9d1ff50b3ee38f4, type: 3}
-  patternSFX: {fileID: 8300000, guid: e0cb0c1418be9f2459e0842ebbb3f634, type: 3}
+  patternSFX: {fileID: 8300000, guid: 993e6ef5af71617448585e1a965e8253, type: 3}
   requirements:
   - flag: 1
     persons: 2

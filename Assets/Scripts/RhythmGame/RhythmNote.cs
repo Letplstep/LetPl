@@ -89,7 +89,7 @@ public class RhythmNote : MonoBehaviour
         if (other.CompareTag("TouchPoint"))
         {
             touchPointCount++;
-            Debug.Log($"[Enter] TouchPoint Count: {touchPointCount}");
+           // Debug.Log($"[Enter] TouchPoint Count: {touchPointCount}");
 
             if (!judged && noteType == NoteType.Sync && touchPointCount >= 2)
             {
@@ -107,7 +107,7 @@ public class RhythmNote : MonoBehaviour
         if (other.CompareTag("TouchPoint"))
         {
             touchPointCount--;
-            Debug.Log($"[Exit] TouchPoint Count: {touchPointCount}");
+           // Debug.Log($"[Exit] TouchPoint Count: {touchPointCount}");
         }
     }
 
@@ -122,6 +122,18 @@ public class RhythmNote : MonoBehaviour
         }
     }
 
+    private bool LockJudge()
+    {
+        if (judged) return false;   // 이미 누가 판정했음
+        judged = true;              // 내가 선점!
+
+        // 더 이상 트리거 못 들어오게 콜라이더 끄기
+        //var col = GetComponent<Collider>();
+        //if (col) col.enabled = false;
+
+        return true;
+    }
+
     // 플레이어가 밟으려고 시도할 때 호출
     public void TryJudge()
     {
@@ -130,14 +142,15 @@ public class RhythmNote : MonoBehaviour
         float elapsed = Time.time - spawnTime;
         if (elapsed > lifetime) return;
 
+        // if (!LockJudge()) return;   // ← 여기 한 줄이 핵심
+
         // 이 시점에서는 플레이어 감지되었으므로 OK
         judgeResult = NoteJudgeResult.OK;
         judged = true;
 
-        Debug.Log($"[Judge OK] {name}");
-
         // 점수 증가. 합동이면 4점, 개인은 1점
         int scoreToAdd = (noteType == NoteType.Single) ? singleScore : syncScore;
+        Debug.Log("Try Judge의 score TO Add : " + scoreToAdd);
         RhythmGameManager.Instance.AddScore(scoreToAdd);
 
         if (hitEffectPrefab != null)
@@ -159,7 +172,9 @@ public class RhythmNote : MonoBehaviour
     public void SelfDestruct()
     {
         // 이미 판정되었으면 아무 것도 하지 않음
-        if (judged) return;
+        //if (judged) return;
+
+        if (!LockJudge()) return;   // 이미 TryJudge가 선점했다면 바로 종료
 
         // 안 밟은 것으로 간주
         judgeResult = NoteJudgeResult.Miss;

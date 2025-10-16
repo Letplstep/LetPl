@@ -49,17 +49,8 @@ public class RhythmGameManager : MonoBehaviour
         if (tutorial != null)
             yield return StartCoroutine(tutorial.PlayCoroutine());
 
-        InitGame();
-    }
-
-    void InitGame()
-    {
-        score = 0;
         isGameStarted = false;
         isGameCleared = false;
-
-        scoreText.text = $"{score}점";
-        StartCoroutine(GameStartCountdown());
     }
 
     // 타임라인 종료
@@ -71,6 +62,11 @@ public class RhythmGameManager : MonoBehaviour
             isGameCleared = true;
             GameClear();
         }
+    }
+
+    public void OnGameStatusStart()
+    {
+        StartCoroutine(GameStartCountdown());
     }
 
     // 준비시간 코루틴
@@ -94,9 +90,8 @@ public class RhythmGameManager : MonoBehaviour
     // 점수 추가
     public void AddScore(int amount)
     {
-        if (!isGameStarted || isGameCleared) return;
-
         score += amount;
+        Debug.Log("Score 점수 : " + score);
         scoreText.text = $"{score}점";
     }
 
