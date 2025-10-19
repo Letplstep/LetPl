@@ -7,7 +7,7 @@ public class SimpleFillTimer : MonoBehaviour
 {
     [Header("타이머 설정")]
     public float totalSeconds = 10f;
-    public bool autoStart = true;
+    public bool autoStart = false;  // 여기 false로 바꾸기! 튜토리얼 끝난 후에 시작해야 하므로
 
     [Header("UI 설정")]
     public Image fillImage; // Fill만 있는 이미지
@@ -24,6 +24,9 @@ public class SimpleFillTimer : MonoBehaviour
     [Header("애니메이션 설정")]
     public float failTextAnimDuration = 1f;
     public float failTextScale = 1.5f;
+
+    [Header("튜토리얼 슬라이드쇼")]
+    public TutorialSlideshow tutorialSlideshow; // 에디터에서 할당하세요
 
     private float remainingTime;
     private bool isRunning = false;
@@ -42,8 +45,22 @@ public class SimpleFillTimer : MonoBehaviour
 
         remainingTime = totalSeconds;
 
-        if (autoStart)
-            StartTimer();
+        if (tutorialSlideshow != null)
+        {
+            // 튜토리얼 완료 이벤트 구독
+            tutorialSlideshow.OnSlideshowFinished += OnTutorialFinished;
+        }
+        else
+        {
+            if (autoStart)
+                StartTimer();
+        }
+    }
+
+    private void OnTutorialFinished()
+    {
+        Debug.Log("튜토리얼 종료 감지: 타이머 시작");
+        StartTimer();
     }
 
     void Update()
@@ -143,6 +160,14 @@ public class SimpleFillTimer : MonoBehaviour
         else
         {
             Debug.LogWarning("메인 씬 이름이 비어있습니다!");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (tutorialSlideshow != null)
+        {
+            tutorialSlideshow.OnSlideshowFinished -= OnTutorialFinished;
         }
     }
 }

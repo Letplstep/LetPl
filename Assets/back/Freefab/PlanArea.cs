@@ -9,13 +9,14 @@ public class PlanArea : MonoBehaviour
     [Header("Y축 기준 (PlanArea 오브젝트의 높이로 결정)")]
     public bool useTransformY = true;
 
-    [Header("고정 높이 (useTransformY=false일 때만 적용)")]
-    public float fixedY = 0f;
+    // 고정 높이 변수 삭제
+    // public float fixedY = 0f;
 
     // 현재 사용할 Y좌표 반환 (생성 시만 사용)
     public float GetY()
     {
-        return useTransformY ? transform.position.y : fixedY;
+        // 항상 transform.position.y 반환하도록 변경
+        return transform.position.y;
     }
 
     // ZX 기준 범위 제한 (중심 기준)
