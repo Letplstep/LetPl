@@ -9,6 +9,8 @@ TagManager:
   - Player2
   - Player1
   - TouchPoint
+  - Box
+  - Platform
   layers:
   - Default
   - TransparentFX

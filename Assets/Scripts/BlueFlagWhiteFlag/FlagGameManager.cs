@@ -15,6 +15,9 @@ public class FlagGameManager : MonoBehaviour
     public Image patternImage;
     public Slider sliderTimer;
     public TextMeshProUGUI textGameStatus;
+    public Image panelGameClear;
+    public Sprite spriteSuccess; // 게임 성공 이미지 
+    public Sprite spriteFail; // 게임 실패 이미지
  
     [Header("게임 상태")]
     public float totalPlayTime = 45f;   // 전체 게임 시간
@@ -75,6 +78,7 @@ public class FlagGameManager : MonoBehaviour
     private void ShowStatus(string msg, bool on = true)
     {
         if (!textGameStatus) return;
+
         textGameStatus.text = msg;
         textGameStatus.enabled = on;
         textGameStatus.gameObject.SetActive(true);
@@ -242,6 +246,7 @@ public class FlagGameManager : MonoBehaviour
       //  Debug.Log("[Game] 종료");
 
         EndGame();
+
     }
 
     // 패턴 성공 체크 로직 분리
@@ -274,9 +279,14 @@ public class FlagGameManager : MonoBehaviour
         isGameCleared = true;
 
         SetPatternVisible(false);
-        ShowStatus("Game Clear!", true);
+        // ShowStatus("Game Clear!", true);
 
-      //  Debug.Log("[Game] 종료");
+        // 20251019 화면 클리어 패널 띄우고 5초 뒤에 
+        // TODO : 성공기준
+
+        panelGameClear.gameObject.SetActive(true);
+
+        //  Debug.Log("[Game] 종료");
     }
 
     private bool successHandled = false; // 이번 패턴에서 성공 처리 이미 했는지
