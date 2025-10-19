@@ -244,9 +244,9 @@ public class FlagGameManager : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(0.3f);
-
         isWaitingForAnswer = true;
+
+        CheckPatternSuccess();  // 이 한 줄 추가!
 
         yield return null;
     }
