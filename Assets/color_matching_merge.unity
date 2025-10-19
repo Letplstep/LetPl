@@ -1621,7 +1621,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sensorEnum: 4
   sensorManager: {fileID: 1238933231}
-  TouchPoint: {fileID: 645335426845738444, guid: 2c1c91add9bddb447923eb4aba8b2a0a, type: 3}
+  TouchPoint: {fileID: 2990793375264832331, guid: 87973f31a797037499490b4ef39c0585, type: 3}
   TouchPointBasket: {fileID: 3616296583646278681}
 --- !u!1 &1414231985
 GameObject:
@@ -1758,7 +1758,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inPort: 7000
-  outIP: 1270.0.1
+  outIP: 1270.0.0.1
   outPort: 7001
 --- !u!4 &1545800826
 Transform:

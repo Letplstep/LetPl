@@ -3,20 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - AttackTile
-  - Tile
-  - Player2
-  - Player1
-  - TouchPoint
-<<<<<<< HEAD
-  - Platform
-  - Wall
-  - Box
-=======
-  - Box
-  - Platform
->>>>>>> c13833f2ace7452dd5f096fc3d7db14be5327e7d
+  tags: []
   layers:
   - Default
   - TransparentFX
