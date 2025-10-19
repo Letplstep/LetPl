@@ -7,18 +7,18 @@ public class SimpleFillTimer : MonoBehaviour
 {
     [Header("타이머 설정")]
     public float totalSeconds = 10f;
-    public bool autoStart = false;  // 여기 false로 바꾸기! 튜토리얼 끝난 후에 시작해야 하므로
+    public bool autoStart = false;  // 튜토리얼 끝난 후 시작
 
     [Header("UI 설정")]
     public Image fillImage; // Fill만 있는 이미지
-    public Text failText;   // 화면 중앙에 큰 실패 문구
+    public Text failText;   // 화면 중앙 실패 문구
 
     [Header("인버트 옵션")]
     public bool isInverted = false;
 
     [Header("씬 전환")]
     [Tooltip("씬 이름을 직접 입력하세요.")]
-    public string mainSceneName; // SceneAsset 대신 string 사용
+    public string mainSceneName;
     public float delayBeforeLoad = 3f;
 
     [Header("애니메이션 설정")]
@@ -26,11 +26,14 @@ public class SimpleFillTimer : MonoBehaviour
     public float failTextScale = 1.5f;
 
     [Header("튜토리얼 슬라이드쇼")]
-    public TutorialSlideshow tutorialSlideshow; // 에디터에서 할당하세요
+    public TutorialSlideshow tutorialSlideshow;
 
     private float remainingTime;
     private bool isRunning = false;
-    private bool hasFinished = false; // 성공/실패 중복 방지
+    private bool hasFinished = false;
+
+    [Header("게임 클리어/실패 패널")]
+    public GameClearPanel gameClearPanelPrefab;
 
     void Start()
     {
@@ -47,19 +50,17 @@ public class SimpleFillTimer : MonoBehaviour
 
         if (tutorialSlideshow != null)
         {
-            // 튜토리얼 완료 이벤트 구독
             tutorialSlideshow.OnSlideshowFinished += OnTutorialFinished;
         }
-        else
+        else if (autoStart)
         {
-            if (autoStart)
-                StartTimer();
+            StartTimer();
         }
     }
 
     private void OnTutorialFinished()
     {
-        Debug.Log("튜토리얼 종료 감지: 타이머 시작");
+        Debug.Log("튜토리얼 종료: 타이머 시작");
         StartTimer();
     }
 
@@ -89,40 +90,59 @@ public class SimpleFillTimer : MonoBehaviour
         if (failText != null)
         {
             failText.gameObject.SetActive(false);
-            failText.transform.localScale = Vector3.one; // 원래 크기로 초기화
+            failText.transform.localScale = Vector3.one;
         }
 
         Time.timeScale = 1f;
     }
 
-    // ✅ 성공 처리용
     public void OnSuccess()
     {
         if (hasFinished) return;
 
         isRunning = false;
         hasFinished = true;
-        Debug.Log("게임 성공! 메인 씬으로 이동");
-        StartCoroutine(LoadMainSceneAfterDelay());
-    }
+        Debug.Log("게임 성공! 메인 씬 이동");
 
-    private void ShowFailMessage()
-    {
-        if (failText != null)
+        if (gameClearPanelPrefab != null)
         {
-            failText.text = "실패!";
-            failText.gameObject.SetActive(true);
-            failText.color = new Color(failText.color.r, failText.color.g, failText.color.b, 0f); // 투명으로 시작
-
-            StartCoroutine(FailTextAnimation());
+            gameClearPanelPrefab.ShowGameClearPanel(true); // 성공 패널
         }
 
-        hasFinished = true;
-        Debug.Log("타이머 종료! 게임 멈춤");
-        Time.timeScale = 0f;
-
         StartCoroutine(LoadMainSceneAfterDelay());
     }
+
+private void ShowFailMessage()
+{
+    hasFinished = true;
+    Debug.Log("타이머 종료: 실패");
+
+    // 1️⃣ 실패 패널 먼저 띄우기
+    if (gameClearPanelPrefab != null)
+    {
+        gameClearPanelPrefab.ShowGameClearPanel(false);
+    }
+
+    // 2️⃣ 실패 텍스트 애니메이션 시작
+    if (failText != null)
+    {
+        failText.text = "실패!";
+        failText.gameObject.SetActive(true);
+        failText.color = new Color(failText.color.r, failText.color.g, failText.color.b, 0f);
+        StartCoroutine(FailTextAnimation());
+    }
+
+    // 3️⃣ 텍스트와 패널이 보인 후에 시간을 멈추도록 코루틴에서 약간 지연
+    StartCoroutine(StopTimeAfterDelay());
+    StartCoroutine(LoadMainSceneAfterDelay());
+}
+
+// 시간이 멈추는 코루틴
+private IEnumerator StopTimeAfterDelay()
+{
+    yield return new WaitForSecondsRealtime(2f); // 0.1초 정도 패널이 먼저 뜨도록 딜레이
+    Time.timeScale = 0f;
+}
 
     private IEnumerator FailTextAnimation()
     {
@@ -134,7 +154,7 @@ public class SimpleFillTimer : MonoBehaviour
 
         while (elapsed < failTextAnimDuration)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += Time.unscaledDeltaTime; // unscaledTime 사용
             float t = Mathf.Clamp01(elapsed / failTextAnimDuration);
 
             failText.color = Color.Lerp(startColor, targetColor, t);

@@ -99,6 +99,23 @@ public class PlatformObject : MonoBehaviour
         RemoveBox();
     }
 
+    void OnTriggerEnter(Collider other)
+{
+    GameObject otherObj = other.gameObject;
+
+    // 내부 오브젝트 태그 (기존과 동일)
+    string[] internalTags = { "Platform", "Box", "Wall" };
+
+    // 내부 오브젝트면 무시
+    if (System.Array.Exists(internalTags, tag => otherObj.CompareTag(tag)))
+        return;
+
+    // 외부 오브젝트 감지 시
+    Debug.Log($"[Platform {objectNumber}] 외부 트리거 충돌 감지 → {otherObj.name}");
+
+    RemoveBox();
+}
+
     private void RemoveBox()
     {
         int idx = objectNumber - 1;
