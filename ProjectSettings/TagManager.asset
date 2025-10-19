@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - TouchPoint
+  - Player2
+  - Player1
+  - Box
+  - Platform
+  - Wall
   layers:
   - Default
   - TransparentFX
