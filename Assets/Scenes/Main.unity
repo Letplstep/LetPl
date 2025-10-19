@@ -774,9 +774,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 505612504}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a89eea04d9f3832438f787c0615c7177, type: 3}
+  m_Script: {fileID: 11500000, guid: f2d745544ad240b49b4b671fe66d9322, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isOSC: {fileID: 1256334237}
 --- !u!4 &505612506
 Transform:
   m_ObjectHideFlags: 0
@@ -1129,9 +1130,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 857231456}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37cbffdfae0a4a647a78df43347d139d, type: 3}
+  m_Script: {fileID: 11500000, guid: f526175fc14bbe04b913d881d95eed76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SensorState: 
 --- !u!4 &857231458
 Transform:
   m_ObjectHideFlags: 0
@@ -1589,9 +1591,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1217305847}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 805f6891aac11d340af1ec7cb9f67c67, type: 3}
+  m_Script: {fileID: 11500000, guid: 09e18c3c2a29b3948807ec674d839f18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sensorEnum: 4
+  SensorPosi: {fileID: 3616296583646278681}
 --- !u!4 &1217305849
 Transform:
   m_ObjectHideFlags: 0
@@ -1648,9 +1652,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1235410528}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43dfa6d621576f04ab648adc66e633ec, type: 3}
+  m_Script: {fileID: 11500000, guid: 32571d41472998446a93ba3535382897, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sensorEnum: 4
+  sensorManager: {fileID: 1217305848}
+  TouchPoint: {fileID: 645335426845738444, guid: 2c1c91add9bddb447923eb4aba8b2a0a, type: 3}
+  TouchPointBasket: {fileID: 3616296583646278681}
 --- !u!1 &1250796602
 GameObject:
   m_ObjectHideFlags: 0
@@ -1752,9 +1760,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1256334236}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ec7cb31de7ca4c4d8507fa62bef6716, type: 3}
+  m_Script: {fileID: 11500000, guid: e8bc3d3b97a195243b0160d62c55751e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inPort: 7000
+  outIP: 1270.0.1
+  outPort: 7001
 --- !u!4 &1256334238
 Transform:
   m_ObjectHideFlags: 0
@@ -1812,7 +1823,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1284229973}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 497f69c2e27fbb54c91d53687a5dcf5a, type: 3}
+  m_Script: {fileID: 11500000, guid: 1238fee539013954695fd0a7fe8e4884, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1284229981
