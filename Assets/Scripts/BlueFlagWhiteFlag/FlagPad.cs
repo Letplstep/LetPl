@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum FlagType
@@ -16,6 +17,7 @@ public class FlagPad : MonoBehaviour
 
     private int touchPoints = 0;
     private int lastNotifiedPersons = -1;
+    private List<Collider> currentTouchPoints = new List<Collider>();
 
     public int Persons => touchpointsPerPerson > 0 ? (touchPoints / touchpointsPerPerson) : 0;
 
@@ -23,16 +25,24 @@ public class FlagPad : MonoBehaviour
     {
         if (!other.CompareTag("TouchPoint")) return;
 
-        touchPoints++;
-        CheckAndNotify();
+        if (!currentTouchPoints.Contains(other))
+        {
+            currentTouchPoints.Add(other);
+            touchPoints++;
+            CheckAndNotify();
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("TouchPoint")) return;
 
-        touchPoints = Mathf.Max(0, touchPoints - 1);
-        CheckAndNotify();
+        if (currentTouchPoints.Contains(other))
+        {
+            currentTouchPoints.Remove(other);
+            touchPoints = Mathf.Max(0, touchPoints - 1);
+            CheckAndNotify();
+        }
     }
 
     private void CheckAndNotify()
@@ -53,16 +63,43 @@ public class FlagPad : MonoBehaviour
 
     public void ResetPad()
     {
-        touchPoints = 0;
+        CountCurrentTouchPoints();
         lastNotifiedPersons = -1;
+        Debug.Log($"[{flagType}] 리셋 후 TouchPoint: {touchPoints}명");
+    }
+
+    private void CountCurrentTouchPoints()
+    {
+        currentTouchPoints.Clear();
+        touchPoints = 0;
+
+        Collider triggerCollider = GetComponent<Collider>();
+        if (triggerCollider == null) return;
+
+        Collider[] overlapping = Physics.OverlapBox(
+            triggerCollider.bounds.center,
+            triggerCollider.bounds.extents,
+            triggerCollider.transform.rotation
+        );
+
+        foreach (var col in overlapping)
+        {
+            if (col.CompareTag("TouchPoint"))
+            {
+                currentTouchPoints.Add(col);
+                touchPoints++;
+            }
+        }
     }
 
     public void SyncToManager()
     {
+        CountCurrentTouchPoints();
+
         if (FlagGameManager.Instance != null)
         {
             FlagGameManager.Instance.SyncPadState(flagType, Persons);
-            Debug.Log($"[{flagType}] Sync: {Persons}명");
+            Debug.Log($"[{flagType}] Sync: {Persons}명 (TP: {touchPoints})");
         }
     }
 }

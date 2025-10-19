@@ -35,8 +35,10 @@ public class FlagGameManager : MonoBehaviour
 
     private bool isWaitingForAnswer = false;
     private bool patternCleared = false;
+    private bool hasMovementAfterPatternStart = false;
 
     private int[] currentPersons = new int[4];
+    private int[] initialPersons = new int[4];
     private int lastPatternIndex = -1;
 
     [Header("카운트다운 스프라이트")]
@@ -214,9 +216,12 @@ public class FlagGameManager : MonoBehaviour
 
         patternCleared = false;
         isWaitingForAnswer = false;
+        hasMovementAfterPatternStart = false;
 
         if (currentPersons == null || currentPersons.Length != 4)
             currentPersons = new int[4];
+        if (initialPersons == null || initialPersons.Length != 4)
+            initialPersons = new int[4];
 
         for (int i = 0; i < currentPersons.Length; i++)
             currentPersons[i] = 0;
@@ -234,7 +239,7 @@ public class FlagGameManager : MonoBehaviour
 
         Debug.Log($"[새 패턴 시작] {pattern.name}");
 
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.3f);
 
         foreach (var pad in pads)
         {
@@ -244,9 +249,12 @@ public class FlagGameManager : MonoBehaviour
             }
         }
 
-        isWaitingForAnswer = true;
+        for (int i = 0; i < 4; i++)
+        {
+            initialPersons[i] = currentPersons[i];
+        }
 
-        CheckPatternSuccess();  // 이 한 줄 추가!
+        isWaitingForAnswer = true;
 
         yield return null;
     }
@@ -260,15 +268,23 @@ public class FlagGameManager : MonoBehaviour
 
         currentPersons[(int)type] = Mathf.Max(0, persons);
 
-        Debug.Log($"[발판 체크] {type}: {persons}명 (대기중: {isWaitingForAnswer}, 클리어: {patternCleared})");
+        if (initialPersons[(int)type] != persons)
+        {
+            hasMovementAfterPatternStart = true;
+        }
 
-        CheckPatternSuccess();
+        Debug.Log($"[발판 체크] {type}: {persons}명 (초기:{initialPersons[(int)type]}, 움직임:{hasMovementAfterPatternStart})");
+
+        if (hasMovementAfterPatternStart)
+        {
+            CheckPatternSuccess();
+        }
     }
 
     public void SyncPadState(FlagType type, int persons)
     {
         currentPersons[(int)type] = Mathf.Max(0, persons);
-        Debug.Log($"[발판 동기화] {type}: {persons}명 (체크 안함)");
+        Debug.Log($"[발판 동기화] {type}: {persons}명");
     }
 
     private void CheckPatternSuccess()
