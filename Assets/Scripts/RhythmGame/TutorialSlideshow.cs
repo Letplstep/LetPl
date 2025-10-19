@@ -6,22 +6,33 @@ using UnityEngine.UI;
 public class TutorialSlideshow : MonoBehaviour
 {
     [Header("Target UI")]
-    public Image image;                 // Sprite Ç¥½Ã¿ë
+    public Image image;                 // Sprite í‘œì‹œí•  UI Image
 
     [Header("Slides")]
-    public List<Sprite> sprites;        // º¸¿©ÁÙ ÀÌ¹ÌÁöµé
+    public List<Sprite> sprites;        // ë³´ì—¬ì¤„ ìŠ¤í”„ë¼ì´íŠ¸ ëª©ë¡
 
     [Header("Playback")]
-    public float interval = 2f;         // ½½¶óÀÌµå °£°İ(ÃÊ)
-    public bool hideAfter = true;       // ³¡³ª¸é ¿ÀºêÁ§Æ® ¼û±è
+    public float interval = 2f;         // ìŠ¬ë¼ì´ë“œ ê°„ ê°„ê²©(ì´ˆ)
+    public bool hideAfter = true;       // ëë‚œ í›„ ì˜¤ë¸Œì íŠ¸ ìˆ¨ê¸¸ì§€ ì—¬ë¶€
 
-   
+    // ìŠ¬ë¼ì´ë“œì‡¼ ì™„ë£Œ ì‹œ í˜¸ì¶œí•  ì´ë²¤íŠ¸(êµ¬ë… ê°€ëŠ¥)
+    public System.Action OnSlideshowFinished;
+
+    void Start()
+    {
+        // ê²Œì„ ì‹œì‘í•˜ìë§ˆì ìŠ¬ë¼ì´ë“œì‡¼ ì‹¤í–‰
+        StartCoroutine(PlayCoroutine());
+    }
+
     public IEnumerator PlayCoroutine()
     {
         if (image == null || sprites == null || sprites.Count == 0)
         {
-            Debug.LogWarning("CustomTutorialSlideshow: image ¶Ç´Â sprites°¡ ºñ¾îÀÖ½À´Ï´Ù.");
+            Debug.LogWarning("TutorialSlideshow: image ë˜ëŠ” spritesê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             if (hideAfter) gameObject.SetActive(false);
+
+            // ì´ë²¤íŠ¸ í˜¸ì¶œ
+            OnSlideshowFinished?.Invoke();
             yield break;
         }
 
@@ -33,8 +44,11 @@ public class TutorialSlideshow : MonoBehaviour
             yield return new WaitForSeconds(interval);
         }
 
-        // ¼û±â±â
+        // ìŠ¬ë¼ì´ë“œì‡¼ ëë‚œ í›„ ì²˜ë¦¬
         image.enabled = false;
-        gameObject.SetActive(false);
+        if (hideAfter) gameObject.SetActive(false);
+
+        // ìŠ¬ë¼ì´ë“œì‡¼ ì™„ë£Œ ì´ë²¤íŠ¸ í˜¸ì¶œ
+        OnSlideshowFinished?.Invoke();
     }
 }
