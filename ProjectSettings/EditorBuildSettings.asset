@@ -11,10 +11,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/RhythmGame.unity
     guid: 4a6670eca76c41140a81e600b19ccd71
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/BlueFlagWhiteFlag.unity
     guid: 17ed991f6e13a1748bbde1edc4b9752b
-  - enabled: 1
+  - enabled: 0
     path: Assets/color_matching_merge.unity
     guid: 3af50421e3026a64fb68f3a09b903615
+  - enabled: 1
+    path: Assets/Scenes/Main.unity
+    guid: 428a51544aa6e784d891c9f3804df4be
   m_configObjects: {}
