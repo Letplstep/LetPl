@@ -14,6 +14,7 @@ public class RhythmGameManager : MonoBehaviour
     public TextMeshProUGUI turnBackText;
     public TextMeshProUGUI startLineText;
     public TextMeshProUGUI gameStatusText;
+    public GameClearPanel gameClearPanel;
 
     [Header("게임 상태")]
     public int score = 0;
@@ -29,6 +30,8 @@ public class RhythmGameManager : MonoBehaviour
 
     [Header("튜토리얼")]
     public TutorialSlideshow tutorial;
+
+
 
     void Awake()
     {
@@ -98,8 +101,24 @@ public class RhythmGameManager : MonoBehaviour
     // 게임 종료시 메소드. 현재 타임라인 끝나면 자동 종료. 게임 취소의 경우엔 어떻게?
     public void GameClear()
     {
-        gameStatusText.text = "Game Clear!";
-        gameStatusText.gameObject.SetActive(true);
+        // 251019 점수 100점 넘으면 성공
+        if (score >= 100)
+        {
+            gameClearPanel.ShowGameClearPanel(true);
+        }
+        else
+        {
+            gameClearPanel.ShowGameClearPanel(false);
+        }
+
+        // 5초 후 자동으로 메인씬으로 이동
+        StartCoroutine(ReturnToMainSceneAfterDelay(5f));
+    }
+
+    private IEnumerator ReturnToMainSceneAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene("Main"); // "Main" 씬 이름과 정확히 일치해야 함
     }
 
     // 게임 재시작
