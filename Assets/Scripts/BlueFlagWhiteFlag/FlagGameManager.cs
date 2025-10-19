@@ -5,6 +5,7 @@ using System.Xml;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class FlagGameManager : MonoBehaviour
@@ -51,6 +52,12 @@ public class FlagGameManager : MonoBehaviour
     [Header("튜토리얼")]
     public FlagTutorialShlideshow tutorial;
 
+    [Header("스코어")]
+    public int score = 5;   // 패턴 1회 성공 시 얻는 점수
+    public int goalScore = 30;       // 클리어 기준 점수
+    public int totalScore = 0;         // 현재 누적 점수(= correctCount * pointsPerPattern)
+    public GameClearPanel gameClearPanel;
+
     void Awake()
     {
         // 싱글톤 인스턴스 설정
@@ -75,6 +82,7 @@ public class FlagGameManager : MonoBehaviour
     private void ShowStatus(string msg, bool on = true)
     {
         if (!textGameStatus) return;
+
         textGameStatus.text = msg;
         textGameStatus.enabled = on;
         textGameStatus.gameObject.SetActive(true);
@@ -108,6 +116,10 @@ public class FlagGameManager : MonoBehaviour
         isGameRunning = true;
         isGameStarted = true;
         isGameCleared = false;
+
+        // 스코어 초기화
+        correctCount = 0;
+        totalScore = 0;
 
         StartCoroutine(GameLoop());
     }
@@ -152,25 +164,31 @@ public class FlagGameManager : MonoBehaviour
                 continue; // 혹은 EndGame(); break;
             }
 
-            // 1) 패턴 선택
+            // --- 1) 패턴 선택: 직전과 같은 패턴은 피함 ---
             int pickIndex;
             do
             {
                 pickIndex = Random.Range(0, patternList.Count);
             } while (pickIndex == lastPatternIndex && patternList.Count > 1);
 
+            // 선택된 패턴을 참조 및 ‘마지막 사용 패턴 인덱스’ 갱신
             FlagPatternData pattern = patternList[pickIndex];
             lastPatternIndex = pickIndex;
-            
 
-            // 먼저 플래그 초기화
+            // --- 3) 현재 패턴 확정 및 UI/SFX 갱신 ---
+            currentPattern = pattern;
+
+            // --- 2) 패턴 시작 전 상태 초기화 ---
+            // 이번 라운드에서 이미 성공 처리했는지, 패턴이 클리어 되었는지 플래그 리셋
+            //  // currentPersons 배열(각 발판 위 인원) 안전 초기화
             successHandled = false;
             patternCleared = false;
             if (currentPersons == null || currentPersons.Length != 4)
                 currentPersons = new int[4];
             for (int i = 0; i < currentPersons.Length; i++) currentPersons[i] = 0;
 
-            // 현재 발판 상태를 직접 읽어서 초기화
+            // 씬의 실제 발판(FlagPad)들에서 ‘현재 인원’을 읽어와 초기값으로 반영
+            // (새 패턴 시작 시점의 베이스라인 세팅)
             for (int i = 0; i < pads.Count; i++)
             {
                 if (pads[i] != null)
@@ -178,10 +196,6 @@ public class FlagGameManager : MonoBehaviour
                     currentPersons[(int)pads[i].flagType] = pads[i].Persons;
                 }
             }
-
-
-            // 그 다음 패턴 설정 
-            currentPattern = pattern;
 
             // UI 갱신, 패턴 오디오 재생
             if (patternImage != null)
@@ -196,7 +210,7 @@ public class FlagGameManager : MonoBehaviour
             }
 
             // 패턴 설정 직후 즉시 체크 (이미 조건 만족 시 바로 성공 처리)
-            CheckPatternSuccess();
+            // CheckPatternSuccess();
 
             // 초기 패턴 시작 시 패드 상태가 반영되지 않아서 currentPersons가 엉뚱한 값으로 남
             // 새 패턴 시작할때마다 현재 패드위에 올라간 사람 강제 반영
@@ -225,58 +239,38 @@ public class FlagGameManager : MonoBehaviour
 
             // --- 카운트다운 (슬라이더는 항상 100 유지) ---
             if (sliderTimer) sliderTimer.value = sliderTimer.maxValue;
-
-            //// 카운트 다운 이미지 보여주기
-            //patternImage.sprite = sprite3;
-            //yield return new WaitForSeconds(1f);
-
-            //patternImage.sprite = sprite2;
-            //yield return new WaitForSeconds(1f);
-
-            //patternImage.sprite = sprite1;
-            //yield return new WaitForSeconds(1f);
-
-
         }
 
-      //  Debug.Log("[Game] 종료");
+        //  Debug.Log("[Game] 종료");
 
         EndGame();
+
     }
 
-    // 패턴 성공 체크 로직 분리
-    private void CheckPatternSuccess()
-    {
-        if (currentPattern == null) return;
-        if (patternCleared) return;
-        if (successHandled) return;
-        if (currentPattern.requirements == null) return;
 
-        // 모든 요구사항 체크
-        foreach (var req in currentPattern.requirements)
-        {
-            int cur = currentPersons[(int)req.flag];
-            if (cur < req.persons) return; // 미달이면 리턴
-        }
-
-        // 여기까지 오면 성공
-        successHandled = true;
-        patternCleared = true;
-        correctCount += 1;
-        Debug.Log($"[Pattern OK] 성공! 누적 점수: {correctCount}");
-        AudioManager.Instance.PlayHitSFX();
-    }
-
-    // --- 게임 종료 처리: 패턴 숨기고 텍스트로 "게임 종료!" ---
+    //// --- 게임 종료 처리: 패턴 숨기고 텍스트로 "게임 종료!" ---
     private void EndGame()
     {
         isGameRunning = false;
         isGameCleared = true;
 
         SetPatternVisible(false);
-        ShowStatus("Game Clear!", true);
+        // ShowStatus("Game Clear!", true);
 
-      //  Debug.Log("[Game] 종료");
+        // 20251019 TODO : 화면 클리어 패널 띄우고 5초 뒤에 메인씬으로 자동이동. 
+        bool cleared = (correctCount * score) >= goalScore;
+        gameClearPanel.ShowGameClearPanel(cleared);
+
+        // 5초 후 자동으로 메인씬으로 이동
+        StartCoroutine(ReturnToMainSceneAfterDelay(5f));
+
+        //  Debug.Log("[Game] 종료");
+    }
+
+    private IEnumerator ReturnToMainSceneAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene("Main"); // "Main" 씬 이름과 정확히 일치해야 함
     }
 
     private bool successHandled = false; // 이번 패턴에서 성공 처리 이미 했는지
@@ -291,41 +285,56 @@ public class FlagGameManager : MonoBehaviour
         // 현재 인원만 업데이트
         currentPersons[(int)type] = Mathf.Max(0, persons);
 
-        // 패턴 체크 (성공 처리는 CheckPatternSuccess 내부에서)
-        CheckPatternSuccess();
+        // 요구된 발판들만 확인(불필요 발판은 신경 안 씀)
+        foreach (var req in currentPattern.requirements)
+        {
+            int cur = currentPersons[(int)req.flag];
+            //  Debug.Log($"현재 발판 : {req.flag}의 인원 {cur}");
+            if (cur < req.persons) return; // 아직 미달 → 대기
+        }
 
+        // 이미 성공 처리된 패턴이면 무시
+        if (successHandled) return;
+        successHandled = true;        // 내가 선점!
+        if (patternCleared) return;
 
+        // 여기까지 오면 모든 조건 만족
+        //   Debug.Log("[Pattern OK] 성공!");
 
-        //   if (currentPattern == null) return;
-        //   if (patternCleared) return;
+        // 성공 처리(점수/이펙트/다음 패턴 등)
+        patternCleared = true;
+        correctCount += 1;
 
-        //  // Debug.Log($"[PadEvent] {type} 현재 {persons}명 | 패턴: {currentPattern.name}");
+        // 점수 갱신
+        totalScore = correctCount * score;
 
-        //   // 1) 현재 인원 업데이트
-        //   currentPersons[(int)type] = Mathf.Max(0, persons);
+        Debug.Log($"[Pattern OK] 성공! 누적 점수: {correctCount}");
 
-        //   // 요구된 발판들만 확인(불필요 발판은 신경 안 씀)
-        //   foreach (var req in currentPattern.requirements)
-        //   {
-        //       int cur = currentPersons[(int)req.flag];
-        //     //  Debug.Log($"현재 발판 : {req.flag}의 인원 {cur}");
-        //       if (cur < req.persons) return; // 아직 미달 → 대기
-        //   }
-
-        //   // 이미 성공 처리된 패턴이면 무시
-        //   if (successHandled) return;
-        //   successHandled = true;        // 내가 선점!
-        //   if (patternCleared) return;
-
-        //   // 여기까지 오면 모든 조건 만족
-        ////   Debug.Log("[Pattern OK] 성공!");
-
-        //   // 성공 처리(점수/이펙트/다음 패턴 등)
-        //   patternCleared = true;
-        //   correctCount += 1;
-        //   Debug.Log($"[Pattern OK] 성공! 누적 점수: {correctCount}");
-
-        //   AudioManager.Instance.PlayHitSFX();
+        // AudioManager.Instance.PlayHitSFX();
 
     }
+
+
+    //// 패턴 성공 체크 로직 분리
+    //private void CheckPatternSuccess()
+    //{
+    //    if (currentPattern == null) return;
+    //    if (patternCleared) return;
+    //    if (successHandled) return;
+    //    if (currentPattern.requirements == null) return;
+
+    //    // 모든 요구사항 체크
+    //    foreach (var req in currentPattern.requirements)
+    //    {
+    //        int cur = currentPersons[(int)req.flag];
+    //        if (cur < req.persons) return; // 미달이면 리턴
+    //    }
+
+    //    // 여기까지 오면 성공
+    //    successHandled = true;
+    //    patternCleared = true;
+    //    correctCount += 1;
+    //    Debug.Log($"[Pattern OK] 성공! 누적 점수: {correctCount}");
+    //    AudioManager.Instance.PlayHitSFX();
+    //}
 } // end class
