@@ -1,156 +1,85 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SceneTrigger : MonoBehaviour
 {
     [System.Serializable]
     public class SceneData
     {
-        public string sceneName;
-        public Image targetImage;
-        public Image changedImage;
-        public GameObject triggerBox;
+        public string sceneName;       // 전환할 씬 이름
+        public Image targetImage;      // 현재 켜져있는 이미지
+        public Image changedImage;     // 켜질 이미지
+        public GameObject triggerBox;  // 트리거 감지용 오브젝트
     }
-
-    [Header("렛플 버튼 누르면 나머지 씬 이동 게임 버튼 활성화")]
-    public static UnityEvent OnLetpleTriggered = new UnityEvent();
 
     [Header("씬-이미지 매칭 데이터")]
     public SceneData[] sceneDatas;
 
     [Header("전환 딜레이 (초)")]
-    public float delayBeforeSceneLoad = 1f;
+    public float delayBeforeSceneLoad = 2f;
 
-    [Header("트리거 유지 시간 (초)")]
-    public float triggerHoldTime = 3f;
+    [Header("게임 시작 시 초기 화면")]
+    public Image initialImage; // 시작 시 보여줄 이미지
+    public float initialDelay = 3f;
 
-    private bool hasTriggered = false;
-    private SceneData activeSceneData = null;
-    private Coroutine activeHoldCoroutine = null;
+    private bool hasTriggered = false; // 먼저 밟은 발판만 인식
+    private bool isInitialDelay = true; // 초기 딜레이 동안 트리거 비활성
 
     private void Start()
     {
+        // 초기 이미지 켜기
+        if (initialImage != null)
+            initialImage.gameObject.SetActive(true);
+
+        // 초기 딜레이 코루틴 시작
+        StartCoroutine(InitialDelayCoroutine());
+
+        // 씬-트리거 세팅
         foreach (var data in sceneDatas)
         {
             if (data.triggerBox != null)
             {
                 var childTrigger = data.triggerBox.AddComponent<SceneTriggerChild>();
-                childTrigger.Initialize(this, data, triggerHoldTime);
-
-                Collider col = data.triggerBox.GetComponent<Collider>();
-                if (col != null)
-                    col.enabled = false;
+                childTrigger.Initialize(this, data);
             }
 
+            // 바뀌는 이미지 초기화
             if (data.changedImage != null)
-            {
-                data.targetImage.gameObject.SetActive(false);
                 data.changedImage.gameObject.SetActive(false);
-            }
         }
     }
 
-    public void OnTriggerEnterScene(SceneData data)
+    private IEnumerator InitialDelayCoroutine()
     {
-        if (hasTriggered) return;
+        yield return new WaitForSeconds(initialDelay);
 
-        CancelActiveTimer();
+        // 초기 이미지 끄기
+        if (initialImage != null)
+            initialImage.gameObject.SetActive(false);
 
-        activeSceneData = data;
-
-        if (data.changedImage != null)
-        {
-            data.changedImage.gameObject.SetActive(true);
-        }
-
-        activeHoldCoroutine = StartCoroutine(HoldTimer(data));
-
-        Debug.Log($"[SceneTrigger] '{data.sceneName}' 진입 - {triggerHoldTime}초 타이머 시작");
+        isInitialDelay = false;
+        Debug.Log("[SceneTrigger] 초기 딜레이 종료, 트리거 활성화");
     }
 
-    public void OnTriggerExitScene(SceneData data)
+    public void TriggerSceneChange(SceneData data)
     {
-        if (hasTriggered) return;
-        if (activeSceneData != data) return;
-
-        CancelActiveTimer();
-
-        if (data.changedImage != null)
-        {
-            data.changedImage.gameObject.SetActive(false);
-        }
-
-        if (data.targetImage != null)
-        {
-            data.targetImage.gameObject.SetActive(true);
-        }
-
-        Debug.Log($"[SceneTrigger] '{data.sceneName}' 이탈 - 타이머 취소");
-    }
-
-    private void CancelActiveTimer()
-    {
-        if (activeHoldCoroutine != null)
-        {
-            StopCoroutine(activeHoldCoroutine);
-            activeHoldCoroutine = null;
-        }
-
-        if (activeSceneData != null)
-        {
-            if (activeSceneData.changedImage != null)
-            {
-                activeSceneData.changedImage.gameObject.SetActive(false);
-            }
-        }
-
-        activeSceneData = null;
-    }
-
-    private IEnumerator HoldTimer(SceneData data)
-    {
-        yield return new WaitForSeconds(triggerHoldTime);
-
-        Debug.Log($"[SceneTrigger] {triggerHoldTime}초 유지 완료 - 씬 전환");
-        LoadScene(data);
-    }
-
-    public void LoadScene(SceneData data)
-    {
-        if (hasTriggered) return;
+        if (hasTriggered || isInitialDelay) return; // 초기 딜레이 동안 무시
         hasTriggered = true;
-
-        Debug.Log($"[SceneTrigger] '{data.sceneName}' 씬 전환 시작");
 
         if (data.targetImage != null && data.changedImage != null)
         {
-            data.targetImage.gameObject.SetActive(true);
+            Debug.Log($"[SceneTrigger] '{data.sceneName}' 트리거 감지됨 — 이미지 전환 후 씬 이동 예정");
+
+            data.targetImage.gameObject.SetActive(false);
             data.changedImage.gameObject.SetActive(true);
+
+            StartCoroutine(LoadSceneAfterDelay(data.sceneName));
         }
-
-        StartCoroutine(LoadSceneAfterDelay(data.sceneName));
-    }
-
-    public void TriggerSceneBtnActive()
-    {
-        Debug.Log("[SceneTrigger] 렛플 트리거 - 모든 게임 버튼 활성화");
-
-        foreach (var data in sceneDatas)
+        else
         {
-            if (data.targetImage != null)
-            {
-                data.targetImage.gameObject.SetActive(true);
-            }
-
-            if (data.triggerBox != null)
-            {
-                Collider col = data.triggerBox.GetComponent<Collider>();
-                if (col != null)
-                    col.enabled = true;
-            }
+            Debug.LogWarning($"[SceneTrigger] '{data.sceneName}' 이미지 참조가 비어 있습니다!");
         }
     }
 
@@ -160,35 +89,38 @@ public class SceneTrigger : MonoBehaviour
         Debug.Log($"[SceneTrigger] 씬 전환: {sceneName}");
         SceneManager.LoadScene(sceneName);
     }
+
+    public bool IsInitialDelayActive()
+    {
+        return isInitialDelay;
+    }
 }
 
+// 콜라이더 감지용 클래스
 public class SceneTriggerChild : MonoBehaviour
 {
     private SceneTrigger parentTrigger;
     private SceneTrigger.SceneData data;
-    private float holdTime;
 
-    public void Initialize(SceneTrigger parent, SceneTrigger.SceneData sceneData, float triggerHoldTime)
+    public void Initialize(SceneTrigger parent, SceneTrigger.SceneData sceneData)
     {
         parentTrigger = parent;
         data = sceneData;
-        holdTime = triggerHoldTime;
 
         Collider col = GetComponent<Collider>();
         if (col == null)
             col = gameObject.AddComponent<BoxCollider>();
-
         col.isTrigger = true;
+
         Debug.Log($"[SceneTriggerChild] '{gameObject.name}' 트리거 설정 완료");
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        parentTrigger.OnTriggerEnterScene(data);
-    }
+        // 초기 딜레이 동안 충돌 무시
+        if (parentTrigger.IsInitialDelayActive()) return;
 
-    private void OnTriggerExit(Collider other)
-    {
-        parentTrigger.OnTriggerExitScene(data);
+        Debug.Log($"[SceneTriggerChild] '{gameObject.name}'이(가) '{other.name}'과 충돌함");
+        parentTrigger.TriggerSceneChange(data);
     }
 }
