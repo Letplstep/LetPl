@@ -100,50 +100,60 @@ public class PlatformObject : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider other)
+    {
+        GameObject otherObj = other.gameObject;
+
+        // 내부 오브젝트 태그 (기존과 동일)
+        string[] internalTags = { "Platform", "Box", "Wall" };
+
+        // 내부 오브젝트면 무시
+        if (System.Array.Exists(internalTags, tag => otherObj.CompareTag(tag)))
+            return;
+
+        // 외부 오브젝트 감지 시
+        Debug.Log($"[Platform {objectNumber}] 외부 트리거 충돌 감지 → {otherObj.name}");
+
+        RemoveBox();
+    }
+
+[Header("발판 터질 때 파티클")]
+public GameObject breakParticlePrefab; // Inspector에서 파티클 프리팹 연결
+
+private void RemoveBox()
 {
-    GameObject otherObj = other.gameObject;
+    int idx = objectNumber - 1;
+    bool correctStep = mainObjects != null && idx >= 0 && idx < mainObjects.Length && mainObjects[idx] != null;
 
-    // 내부 오브젝트 태그 (기존과 동일)
-    string[] internalTags = { "Platform", "Box", "Wall" };
+    if (sceneSetup != null)
+    {
+        sceneSetup.PlaySfx(correctStep);
+    }
 
-    // 내부 오브젝트면 무시
-    if (System.Array.Exists(internalTags, tag => otherObj.CompareTag(tag)))
+    if (!correctStep)
+    {
+        Debug.Log($"[Platform {objectNumber}] 잘못된 발판 → 박 없음, 무시");
         return;
+    }
 
-    // 외부 오브젝트 감지 시
-    Debug.Log($"[Platform {objectNumber}] 외부 트리거 충돌 감지 → {otherObj.name}");
+    // 💥 파티클 생성
+    if (breakParticlePrefab != null)
+    {
+        Instantiate(breakParticlePrefab, transform.position, Quaternion.identity);
+    }
 
-    RemoveBox();
+    MainObject target = mainObjects[idx];
+    Destroy(target.gameObject);
+    mainObjects[idx] = null;
+
+    Debug.Log($"[Platform {objectNumber}] 박 {objectNumber} 제거됨");
+
+    if (sceneSetup != null)
+    {
+        Vector2 platformPosXZ = new Vector2(transform.position.x, transform.position.z);
+        sceneSetup.OnBoxRemoved(platformPosXZ, idx);
+    }
+
+    Destroy(this.gameObject);
 }
 
-    private void RemoveBox()
-    {
-        int idx = objectNumber - 1;
-        bool correctStep = mainObjects != null && idx >= 0 && idx < mainObjects.Length && mainObjects[idx] != null;
-
-        if (sceneSetup != null)
-        {
-            sceneSetup.PlaySfx(correctStep);
-        }
-
-        if (!correctStep)
-        {
-            Debug.Log($"[Platform {objectNumber}] 잘못된 발판 → 박 없음, 무시");
-            return;
-        }
-
-        MainObject target = mainObjects[idx];
-        Destroy(target.gameObject);
-        mainObjects[idx] = null;
-
-        Debug.Log($"[Platform {objectNumber}] 박 {objectNumber} 제거됨");
-
-        if (sceneSetup != null)
-        {
-            Vector2 platformPosXZ = new Vector2(transform.position.x, transform.position.z);
-            sceneSetup.OnBoxRemoved(platformPosXZ, idx);
-        }
-
-        Destroy(this.gameObject);
-    }
 }
