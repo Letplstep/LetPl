@@ -35,7 +35,7 @@ public class SimpleFillTimer : MonoBehaviour
     public GameClearPanel gameClearPanelPrefab;
 
     [Header("패널 등장 지연시간 (초)")]
-    public float panelDelay = 1.5f;  // ✅ N초 뒤에 패널 등장
+    public float panelDelay = 1.5f;
 
     void Start()
     {
@@ -51,13 +51,9 @@ public class SimpleFillTimer : MonoBehaviour
         remainingTime = totalSeconds;
 
         if (tutorialSlideshow != null)
-        {
             tutorialSlideshow.OnSlideshowFinished += OnTutorialFinished;
-        }
         else if (autoStart)
-        {
             StartTimer();
-        }
     }
 
     private void OnTutorialFinished()
@@ -106,9 +102,11 @@ public class SimpleFillTimer : MonoBehaviour
         hasFinished = true;
         Debug.Log("게임 성공! 메인 씬 이동");
 
-        // ✅ N초 후 클리어 패널 표시
-        StartCoroutine(ShowClearPanelWithDelay(true, panelDelay));
+        // ✅ N초 후 성공 패널 표시
+        if (gameClearPanelPrefab != null)
+            StartCoroutine(ShowPanelWithDelay(true, panelDelay));
 
+        // 씬 전환
         StartCoroutine(LoadMainSceneAfterDelay());
     }
 
@@ -117,9 +115,7 @@ public class SimpleFillTimer : MonoBehaviour
         hasFinished = true;
         Debug.Log("타이머 종료: 실패");
 
-        // ✅ N초 후 실패 패널 표시
-        StartCoroutine(ShowClearPanelWithDelay(false, panelDelay));
-
+        // FailText 애니메이션
         if (failText != null)
         {
             failText.text = "실패!";
@@ -128,24 +124,30 @@ public class SimpleFillTimer : MonoBehaviour
             StartCoroutine(FailTextAnimation());
         }
 
-        StartCoroutine(StopTimeAfterDelay());
+        // ✅ 모든 박(MainObject)과 발판(PlatformObject) 제거
+        MainObject[] allMains = FindObjectsOfType<MainObject>();
+        foreach (var m in allMains)
+            Destroy(m.gameObject);
+
+        PlatformObject[] allPlatforms = FindObjectsOfType<PlatformObject>();
+        foreach (var p in allPlatforms)
+            Destroy(p.gameObject);
+
+        // ✅ N초 후 실패 패널 표시
+        if (gameClearPanelPrefab != null)
+            StartCoroutine(ShowPanelWithDelay(false, panelDelay));
+
+        // 씬 전환
         StartCoroutine(LoadMainSceneAfterDelay());
     }
 
-    // ✅ N초 뒤에 클리어/실패 패널 표시
-    private IEnumerator ShowClearPanelWithDelay(bool isSuccess, float delay)
+    private IEnumerator ShowPanelWithDelay(bool isSuccess, float delay)
     {
         yield return new WaitForSecondsRealtime(delay);
-        if (gameClearPanelPrefab != null)
-        {
-            gameClearPanelPrefab.ShowGameClearPanel(isSuccess);
-        }
-    }
 
-    private IEnumerator StopTimeAfterDelay()
-    {
-        yield return new WaitForSecondsRealtime(2f);
-        Time.timeScale = 0f;
+        // 안전하게 gameClearPanelPrefab만 사용하여 호출
+        if (gameClearPanelPrefab != null)
+            gameClearPanelPrefab.ShowGameClearPanel(isSuccess);
     }
 
     private IEnumerator FailTextAnimation()
@@ -175,20 +177,14 @@ public class SimpleFillTimer : MonoBehaviour
         Time.timeScale = 1f;
 
         if (!string.IsNullOrEmpty(mainSceneName))
-        {
             SceneManager.LoadScene(mainSceneName);
-        }
         else
-        {
             Debug.LogWarning("메인 씬 이름이 비어있습니다!");
-        }
     }
 
     private void OnDestroy()
     {
         if (tutorialSlideshow != null)
-        {
             tutorialSlideshow.OnSlideshowFinished -= OnTutorialFinished;
-        }
     }
 }

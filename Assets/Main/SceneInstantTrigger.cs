@@ -20,10 +20,23 @@ public class SceneTrigger : MonoBehaviour
     [Header("전환 딜레이 (초)")]
     public float delayBeforeSceneLoad = 2f;
 
-    private bool hasTriggered = false; // ✅ 먼저 밟은 발판만 인식
+    [Header("게임 시작 시 초기 화면")]
+    public Image initialImage; // 시작 시 보여줄 이미지
+    public float initialDelay = 3f;
+
+    private bool hasTriggered = false; // 먼저 밟은 발판만 인식
+    private bool isInitialDelay = true; // 초기 딜레이 동안 트리거 비활성
 
     private void Start()
     {
+        // 초기 이미지 켜기
+        if (initialImage != null)
+            initialImage.gameObject.SetActive(true);
+
+        // 초기 딜레이 코루틴 시작
+        StartCoroutine(InitialDelayCoroutine());
+
+        // 씬-트리거 세팅
         foreach (var data in sceneDatas)
         {
             if (data.triggerBox != null)
@@ -32,14 +45,27 @@ public class SceneTrigger : MonoBehaviour
                 childTrigger.Initialize(this, data);
             }
 
+            // 바뀌는 이미지 초기화
             if (data.changedImage != null)
                 data.changedImage.gameObject.SetActive(false);
         }
     }
 
+    private IEnumerator InitialDelayCoroutine()
+    {
+        yield return new WaitForSeconds(initialDelay);
+
+        // 초기 이미지 끄기
+        if (initialImage != null)
+            initialImage.gameObject.SetActive(false);
+
+        isInitialDelay = false;
+        Debug.Log("[SceneTrigger] 초기 딜레이 종료, 트리거 활성화");
+    }
+
     public void TriggerSceneChange(SceneData data)
     {
-        if (hasTriggered) return; // 이미 발판 밟았으면 무시
+        if (hasTriggered || isInitialDelay) return; // 초기 딜레이 동안 무시
         hasTriggered = true;
 
         if (data.targetImage != null && data.changedImage != null)
@@ -62,6 +88,11 @@ public class SceneTrigger : MonoBehaviour
         yield return new WaitForSeconds(delayBeforeSceneLoad);
         Debug.Log($"[SceneTrigger] 씬 전환: {sceneName}");
         SceneManager.LoadScene(sceneName);
+    }
+
+    public bool IsInitialDelayActive()
+    {
+        return isInitialDelay;
     }
 }
 
@@ -86,6 +117,9 @@ public class SceneTriggerChild : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // 초기 딜레이 동안 충돌 무시
+        if (parentTrigger.IsInitialDelayActive()) return;
+
         Debug.Log($"[SceneTriggerChild] '{gameObject.name}'이(가) '{other.name}'과 충돌함");
         parentTrigger.TriggerSceneChange(data);
     }
