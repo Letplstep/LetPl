@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class TestSceneSetup : MonoBehaviour
 {
+    public float finishBoxLifetime = 5f; // 🕒 Finish 박 유지 시간 (초 단위, 인스펙터에서 조정 가능)
+
     [Header("설정")]
     public PlanArea planArea;
 
@@ -181,52 +183,55 @@ void Start()
         Debug.Log($"RespawnMain: 박 {index + 1} 생성 (위치: {spawnPos}, Collider 반지름 {mainSphereRadius})");
     }
 
-    public void OnBoxRemoved(Vector2 platformPosXZ, int idx)
+public void OnBoxRemoved(Vector2 platformPosXZ, int idx)
+{
+    remainingRounds--;
+    UpdateRoundsUI();
+
+    if (remainingRounds <= 0)
     {
-        remainingRounds--;
-        UpdateRoundsUI();
+        // 성공 처리
+        SimpleFillTimer timer = FindObjectOfType<SimpleFillTimer>();
+        if (timer != null)
+            timer.OnSuccess();
 
-        if (remainingRounds <= 0)
+        if (finishPrefab != null)
         {
-            // 성공 처리
-            SimpleFillTimer timer = FindObjectOfType<SimpleFillTimer>();
-            if (timer != null)
-                timer.OnSuccess();
+            // 초기 박 위치를 사용해 Finish 박 생성
+            Vector2 finishPosXZ = fixedMainPositions != null && fixedMainPositions.Length > 0
+                ? fixedMainPositions[0]
+                : Vector2.zero;
 
-            if (finishPrefab != null)
+            Vector3 finishPos = new Vector3(finishPosXZ.x, planArea.GetY(), finishPosXZ.y);
+
+            GameObject finishBox = Instantiate(finishPrefab, finishPos, Quaternion.identity);
+            finishBox.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+
+            SphereCollider col = finishBox.GetComponent<SphereCollider>();
+            if (!col) col = finishBox.AddComponent<SphereCollider>();
+            col.radius = mainSphereRadius;
+            col.center = Vector3.zero;
+
+            Rigidbody rb = finishBox.GetComponent<Rigidbody>();
+            if (rb != null)
             {
-                // 초기 박 위치를 사용해 Finish 박 생성
-                Vector2 finishPosXZ = fixedMainPositions != null && fixedMainPositions.Length > 0
-                    ? fixedMainPositions[0]
-                    : Vector2.zero;
-
-                Vector3 finishPos = new Vector3(finishPosXZ.x, planArea.GetY(), finishPosXZ.y);
-
-                GameObject finishBox = Instantiate(finishPrefab, finishPos, Quaternion.identity);
-                finishBox.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-
-                SphereCollider col = finishBox.GetComponent<SphereCollider>();
-                if (!col) col = finishBox.AddComponent<SphereCollider>();
-                col.radius = mainSphereRadius;
-                col.center = Vector3.zero;
-
-                Rigidbody rb = finishBox.GetComponent<Rigidbody>();
-                if (rb != null)
-                {
-                    rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                }
-
-                if (audioSource != null && finishBoxSfx != null)
-                    audioSource.PlayOneShot(finishBoxSfx, finishBoxVolume);
-
-                Debug.Log($"🎯 Finish 박 생성 위치: {finishPos}");
+                rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             }
-        }
-        else
-        {
-            RespawnMainRandom(platformPosXZ);
+
+            if (audioSource != null && finishBoxSfx != null)
+                audioSource.PlayOneShot(finishBoxSfx, finishBoxVolume);
+
+            Debug.Log($"🎯 Finish 박 생성 위치: {finishPos}");
+
+            // 🕒 N초 후 자동 삭제
+            Destroy(finishBox, finishBoxLifetime);
         }
     }
+    else
+    {
+        RespawnMainRandom(platformPosXZ);
+    }
+}
 
 private void UpdateRoundsUI()
 {

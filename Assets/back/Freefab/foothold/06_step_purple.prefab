@@ -106,6 +106,7 @@ MonoBehaviour:
   sceneSetup: {fileID: 0}
   colliderRadius: 1
   colliderCenter: {x: 0, y: 0, z: 0}
+  breakParticlePrefab: {fileID: 2433282508537954060, guid: 3ef3ae421f71c5c4e97fe12dc2fc6312, type: 3}
 --- !u!54 &3757707588183994778
 Rigidbody:
   m_ObjectHideFlags: 0

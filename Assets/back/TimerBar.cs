@@ -7,17 +7,16 @@ public class SimpleFillTimer : MonoBehaviour
 {
     [Header("타이머 설정")]
     public float totalSeconds = 10f;
-    public bool autoStart = false;  // 튜토리얼 끝난 후 시작
+    public bool autoStart = false;
 
     [Header("UI 설정")]
-    public Image fillImage; // Fill만 있는 이미지
-    public Text failText;   // 화면 중앙 실패 문구
+    public Image fillImage;
+    public Text failText;
 
     [Header("인버트 옵션")]
     public bool isInverted = false;
 
     [Header("씬 전환")]
-    [Tooltip("씬 이름을 직접 입력하세요.")]
     public string mainSceneName;
     public float delayBeforeLoad = 3f;
 
@@ -34,6 +33,9 @@ public class SimpleFillTimer : MonoBehaviour
 
     [Header("게임 클리어/실패 패널")]
     public GameClearPanel gameClearPanelPrefab;
+
+    [Header("패널 등장 지연시간 (초)")]
+    public float panelDelay = 1.5f;  // ✅ N초 뒤에 패널 등장
 
     void Start()
     {
@@ -104,45 +106,47 @@ public class SimpleFillTimer : MonoBehaviour
         hasFinished = true;
         Debug.Log("게임 성공! 메인 씬 이동");
 
-        if (gameClearPanelPrefab != null)
-        {
-            gameClearPanelPrefab.ShowGameClearPanel(true); // 성공 패널
-        }
+        // ✅ N초 후 클리어 패널 표시
+        StartCoroutine(ShowClearPanelWithDelay(true, panelDelay));
 
         StartCoroutine(LoadMainSceneAfterDelay());
     }
 
-private void ShowFailMessage()
-{
-    hasFinished = true;
-    Debug.Log("타이머 종료: 실패");
-
-    // 1️⃣ 실패 패널 먼저 띄우기
-    if (gameClearPanelPrefab != null)
+    private void ShowFailMessage()
     {
-        gameClearPanelPrefab.ShowGameClearPanel(false);
+        hasFinished = true;
+        Debug.Log("타이머 종료: 실패");
+
+        // ✅ N초 후 실패 패널 표시
+        StartCoroutine(ShowClearPanelWithDelay(false, panelDelay));
+
+        if (failText != null)
+        {
+            failText.text = "실패!";
+            failText.gameObject.SetActive(true);
+            failText.color = new Color(failText.color.r, failText.color.g, failText.color.b, 0f);
+            StartCoroutine(FailTextAnimation());
+        }
+
+        StartCoroutine(StopTimeAfterDelay());
+        StartCoroutine(LoadMainSceneAfterDelay());
     }
 
-    // 2️⃣ 실패 텍스트 애니메이션 시작
-    if (failText != null)
+    // ✅ N초 뒤에 클리어/실패 패널 표시
+    private IEnumerator ShowClearPanelWithDelay(bool isSuccess, float delay)
     {
-        failText.text = "실패!";
-        failText.gameObject.SetActive(true);
-        failText.color = new Color(failText.color.r, failText.color.g, failText.color.b, 0f);
-        StartCoroutine(FailTextAnimation());
+        yield return new WaitForSecondsRealtime(delay);
+        if (gameClearPanelPrefab != null)
+        {
+            gameClearPanelPrefab.ShowGameClearPanel(isSuccess);
+        }
     }
 
-    // 3️⃣ 텍스트와 패널이 보인 후에 시간을 멈추도록 코루틴에서 약간 지연
-    StartCoroutine(StopTimeAfterDelay());
-    StartCoroutine(LoadMainSceneAfterDelay());
-}
-
-// 시간이 멈추는 코루틴
-private IEnumerator StopTimeAfterDelay()
-{
-    yield return new WaitForSecondsRealtime(2f); // 0.1초 정도 패널이 먼저 뜨도록 딜레이
-    Time.timeScale = 0f;
-}
+    private IEnumerator StopTimeAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(2f);
+        Time.timeScale = 0f;
+    }
 
     private IEnumerator FailTextAnimation()
     {
@@ -154,12 +158,10 @@ private IEnumerator StopTimeAfterDelay()
 
         while (elapsed < failTextAnimDuration)
         {
-            elapsed += Time.unscaledDeltaTime; // unscaledTime 사용
+            elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / failTextAnimDuration);
-
             failText.color = Color.Lerp(startColor, targetColor, t);
             failText.transform.localScale = Vector3.Lerp(startScale, targetScale, t);
-
             yield return null;
         }
 
@@ -170,7 +172,6 @@ private IEnumerator StopTimeAfterDelay()
     private IEnumerator LoadMainSceneAfterDelay()
     {
         yield return new WaitForSecondsRealtime(delayBeforeLoad);
-
         Time.timeScale = 1f;
 
         if (!string.IsNullOrEmpty(mainSceneName))
