@@ -57,12 +57,15 @@ public class FlagGameManager : MonoBehaviour
 
     [Header("튜토리얼")]
     public FlagTutorialShlideshow tutorial;
+    public Image panelStartline;
 
     [Header("스코어")]
     public int score = 5;
     public int goalScore = 30;
     public int totalScore = 0;
     public GameClearPanel gameClearPanel;
+
+    
 
     void Awake()
     {
@@ -109,6 +112,16 @@ public class FlagGameManager : MonoBehaviour
             sliderTimer.minValue = 0f;
             sliderTimer.maxValue = 100f;
             sliderTimer.value = 100f;
+        }
+
+        // TODO : 이미지 3초동안 보여주기
+        if (panelStartline != null)
+        {
+            panelStartline.gameObject.SetActive(true);
+
+            yield return new WaitForSeconds(4f);
+
+            panelStartline.gameObject.SetActive(false);
         }
 
         StartCoroutine(StartSequence());
@@ -298,14 +311,15 @@ public class FlagGameManager : MonoBehaviour
             requiredFlags[(int)req.flag] = true;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            if (!requiredFlags[i] && currentPersons[i] > 0)
-            {
-                Debug.Log($"[오답] {(FlagType)i} 발판에 올라가면 안됩니다!");
-                return;
-            }
-        }
+        // 실패처리 없애기 
+        //for (int i = 0; i < 4; i++)
+        //{
+        //    if (!requiredFlags[i] && currentPersons[i] > 0)
+        //    {
+        //        Debug.Log($"[오답] {(FlagType)i} 발판에 올라가면 안됩니다!");
+        //        return;
+        //    }
+        //}
 
         foreach (var req in currentPattern.requirements)
         {
