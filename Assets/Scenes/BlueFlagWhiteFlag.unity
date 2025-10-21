@@ -4200,6 +4200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flagType: 2
+  touchpointsPerPerson: 2
 --- !u!1001 &1061337327
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6183,6 +6184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flagType: 3
+  touchpointsPerPerson: 2
 --- !u!1001 &1739179693
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6396,6 +6398,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flagType: 1
+  touchpointsPerPerson: 2
 --- !u!1001 &1791130593
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8230,6 +8233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flagType: 0
+  touchpointsPerPerson: 2
 --- !u!1 &8840153820952516107
 GameObject:
   m_ObjectHideFlags: 0
