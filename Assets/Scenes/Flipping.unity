@@ -152,10 +152,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e126c3610c9a9094ba75bc53a3306dad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvasTransform: {fileID: 0}
   tilePrefab: {fileID: 999332881404080185, guid: 4efefbdc879c3454d8f7b93c41e7fe49, type: 3}
   width: 3
   height: 6
   spacing: 1.1
+  tileScale: 4
 --- !u!4 &97409241
 Transform:
   m_ObjectHideFlags: 0
@@ -200,9 +202,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c5dc25c95311a74896b593e05906f65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player1ScoreText: {fileID: 1147402288}
-  player2ScoreText: {fileID: 1000038942}
-  timerText: {fileID: 1982718030}
+  feverEffectPrefab: {fileID: 0}
+  feverBannerLeft: {fileID: 0}
+  feverBannerRight: {fileID: 0}
+  feverPlane: {fileID: 0}
+  feverStartClip: {fileID: 0}
+  attackTileClip: {fileID: 0}
+  defenseFailClip: {fileID: 0}
+  bgmClip: {fileID: 0}
+  player1WinEffect: {fileID: 0}
+  player2WinEffect: {fileID: 0}
+  drawEffect: {fileID: 0}
+  player1ScoreText: {fileID: 0}
+  player2ScoreText: {fileID: 0}
+  timerText: {fileID: 0}
+  timerSlider: {fileID: 0}
   resultPanel: {fileID: 1553888986}
   resultText: {fileID: 1646157164}
   gameTime: 13

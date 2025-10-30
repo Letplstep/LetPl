@@ -11,7 +11,16 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/RhythmGame_Prototype.unity
     guid: 4a6670eca76c41140a81e600b19ccd71
-  - enabled: 1
-    path: Assets/Scenes/NewXroomSetup.unity
+  - enabled: 0
+    path: Assets/Scenes/PickScene.unity
+    guid: 68ef31452b2a41943801bd460ed192b9
+  - enabled: 0
+    path: Assets/Scenes/Game1.unity
     guid: fe4f450d079073744b2f9e812dd7dea3
+  - enabled: 1
+    path: Assets/Scenes/Pick.unity
+    guid: dfb86539280494c47a7760473e8676dd
+  - enabled: 1
+    path: Assets/Scenes/Game2.unity
+    guid: 066304ac50ba0b34da45c28a5d3a4841
   m_configObjects: {}

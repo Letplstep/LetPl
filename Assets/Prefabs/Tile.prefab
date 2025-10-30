@@ -123,7 +123,9 @@ MonoBehaviour:
   territoryOwner: 0
   isAttackTile: 0
   isDefenseTile: 0
-  defenseTimerUIPrefab: {fileID: 1829862033323824716, guid: da60651b1d9115a4684431d80117600d, type: 3}
+  attackSuccessSprite: {fileID: 21300000, guid: 83da568f6dbd7a644ac0cfd10866356e, type: 3}
+  defenseSuccessSprite: {fileID: 21300000, guid: 83da568f6dbd7a644ac0cfd10866356e, type: 3}
+  defenseTimerUIPrefab: {fileID: 6353185128949773496, guid: 293909a60e9d63246a1f82ed16365eb0, type: 3}
   defaultSprite: {fileID: 21300000, guid: 231e5b9f39c0965488833d6ff6b07311, type: 3}
   player1Sprite: {fileID: 21300000, guid: 231e5b9f39c0965488833d6ff6b07311, type: 3}
   player2Sprite: {fileID: 21300000, guid: ecb99553e6f9442489e25aad03853a24, type: 3}
